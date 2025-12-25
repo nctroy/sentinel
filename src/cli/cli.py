@@ -37,8 +37,14 @@ def init_db():
     """Initialize database schema"""
     console.print("[bold blue]Initializing database...[/]")
     try:
-        # Implementation would create tables
+        from src.storage.postgres_client import PostgresClient
+
+        db = PostgresClient()
+        db.connect()
+        db.init_db()
+
         console.print("[green]✓ Database initialized[/]")
+        console.print("[dim]Tables created: agents, bottlenecks, actions, orchestrator_plans, decision_log, notion_sync[/]")
     except Exception as e:
         console.print(f"[red]✗ Failed: {e}[/]")
         raise
@@ -65,14 +71,43 @@ def run_cycle(mode, verbose):
 @cli.command()
 @click.argument("config")
 def init_project(config):
-    """Initialize a new project"""
+    """Initialize a new project and register agents"""
     console.print(f"[bold blue]Initializing project from {config}...[/]")
-    
+
     try:
+        from src.storage.postgres_client import PostgresClient
+
+        # Load config
         with open(config, 'r') as f:
             project_config = json.load(f)
-        
-        console.print(f"[green]✓ Project created: {project_config['project']}[/]")
+
+        project_name = project_config['project']
+        console.print(f"[cyan]Project: {project_name}[/]")
+        console.print(f"[dim]{project_config.get('description', '')}[/]\n")
+
+        # Connect to database
+        db = PostgresClient()
+        db.connect()
+
+        # Register agents
+        agents_registered = 0
+        for agent_config in project_config.get('sub_agents', []):
+            agent_id = agent_config['agent_id']
+            domain = agent_config['domain']
+
+            db.register_agent(
+                agent_id=agent_id,
+                domain=domain,
+                name=agent_config.get('name'),
+                responsibilities=agent_config.get('responsibilities'),
+                autonomy_level=agent_config.get('autonomy_level', 'diagnostic')
+            )
+            console.print(f"  [green]✓[/] Registered: {agent_id} ({domain})")
+            agents_registered += 1
+
+        console.print(f"\n[green]✓ Project initialized: {project_name}[/]")
+        console.print(f"[dim]Registered {agents_registered} agents[/]")
+
     except Exception as e:
         console.print(f"[red]✗ Failed: {e}[/]")
         raise

@@ -1,0 +1,125 @@
+{
+  "project": "job-search",
+  "description": "Autonomous job search orchestration for cloud security and AI engineering roles",
+  "sub_agents": [
+    {
+      "agent_id": "job-research",
+      "name": "Job Research Agent",
+      "domain": "job-research",
+      "responsibilities": [
+        "Identify target companies in cloud security and AI sectors",
+        "Monitor job postings on LinkedIn, company career pages, and job boards",
+        "Validate role fit based on requirements and experience",
+        "Track emerging opportunities in the market",
+        "Research company culture and tech stack"
+      ],
+      "autonomy_level": "diagnostic",
+      "data_sources": [
+        "LinkedIn Jobs",
+        "Company career pages",
+        "AngelList",
+        "Built In",
+        "YCombinator jobs"
+      ],
+      "metrics": {
+        "target_roles": [
+          "Cloud Security Architect",
+          "AI Security Engineer",
+          "Security Engineering Manager",
+          "Principal Security Engineer"
+        ],
+        "target_companies": [
+          "AI startups (Series A-C)",
+          "Cloud infrastructure companies",
+          "Security-first organizations"
+        ]
+      }
+    },
+    {
+      "agent_id": "job-applications",
+      "name": "Application Tracking Agent",
+      "domain": "job-applications",
+      "responsibilities": [
+        "Track application status for all submitted applications",
+        "Schedule and manage follow-ups with recruiters",
+        "Manage interview scheduling and preparation",
+        "Monitor response times and engagement",
+        "Maintain application pipeline health"
+      ],
+      "autonomy_level": "diagnostic",
+      "pipeline_stages": [
+        "researched",
+        "applied",
+        "screening",
+        "technical_interview",
+        "final_round",
+        "offer",
+        "rejected"
+      ],
+      "metrics": {
+        "application_velocity": "target: 5-10 per week",
+        "response_rate": "track: % of applications with responses",
+        "interview_conversion": "track: % from application to interview"
+      }
+    },
+    {
+      "agent_id": "job-preparation",
+      "name": "Interview Preparation Agent",
+      "domain": "interview-prep",
+      "responsibilities": [
+        "Identify skill gaps based on job requirements",
+        "Recommend preparation materials and resources",
+        "Track preparation progress for upcoming interviews",
+        "Generate company-specific talking points",
+        "Monitor industry trends and hot topics"
+      ],
+      "autonomy_level": "diagnostic",
+      "preparation_areas": [
+        "Cloud security architecture (AWS, GCP, Azure)",
+        "AI/ML security and adversarial ML",
+        "Zero trust architecture",
+        "DevSecOps and CI/CD security",
+        "Behavioral interview scenarios",
+        "System design for security systems"
+      ],
+      "metrics": {
+        "skills_to_highlight": [
+          "Cloud security expertise",
+          "AI system design",
+          "Security automation",
+          "Team leadership"
+        ]
+      }
+    }
+  ],
+  "orchestration_rules": {
+    "bottleneck_prioritization": "impact-score",
+    "autonomy_level": "diagnostic",
+    "cycle_frequency": "daily",
+    "weekly_review": true,
+    "cross_agent_coordination": {
+      "research_to_applications": "Identified opportunities → Application tracking",
+      "applications_to_prep": "Scheduled interviews → Preparation focus",
+      "prep_to_research": "Skill gaps → Refine target role criteria"
+    }
+  },
+  "notion_integration": {
+    "enabled": true,
+    "databases": {
+      "job_opportunities": "Track researched positions",
+      "applications": "Application pipeline and status",
+      "interview_prep": "Preparation tasks and resources",
+      "company_research": "Company profiles and notes"
+    }
+  },
+  "goals": {
+    "primary": "Secure cloud security or AI security role at high-growth company",
+    "timeline": "3-6 months",
+    "success_criteria": [
+      "Multiple offers from target companies",
+      "Role aligns with cloud security + AI expertise",
+      "Competitive compensation package",
+      "Strong team and growth opportunities"
+    ]
+  }
+}
