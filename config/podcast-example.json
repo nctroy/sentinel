@@ -1,0 +1,74 @@
+{
+  "project": "podcast-production",
+  "description": "Automated podcast production pipeline with research, production, and distribution agents",
+  "created_at": "2024-12-25",
+  
+  "sub_agents": [
+    {
+      "agent_id": "research-001",
+      "name": "Research Agent",
+      "domain": "topic-research",
+      "responsibilities": [
+        "Find trending podcast topics",
+        "Validate audience interest",
+        "Research guest possibilities",
+        "Identify knowledge gaps"
+      ],
+      "autonomy_level": "diagnostic",
+      "update_frequency": "daily",
+      "confidence_threshold": 0.75
+    },
+    {
+      "agent_id": "production-001",
+      "name": "Production Agent",
+      "domain": "podcast-production",
+      "responsibilities": [
+        "Schedule recording sessions",
+        "Prepare scripts and outlines",
+        "Manage equipment setup",
+        "Coordinate with guests"
+      ],
+      "autonomy_level": "diagnostic",
+      "update_frequency": "daily",
+      "confidence_threshold": 0.80
+    },
+    {
+      "agent_id": "distribution-001",
+      "name": "Distribution Agent",
+      "domain": "podcast-distribution",
+      "responsibilities": [
+        "Publish to platforms (Spotify, Apple, RSS)",
+        "Social media promotion",
+        "Email newsletter distribution",
+        "Analytics tracking"
+      ],
+      "autonomy_level": "diagnostic",
+      "update_frequency": "daily",
+      "confidence_threshold": 0.85
+    }
+  ],
+  
+  "orchestration_rules": {
+    "bottleneck_prioritization": "impact-score",
+    "conflict_resolution": "strategic-fit",
+    "resource_allocation": "impact-weighted",
+    "escalation_threshold": 0.65
+  },
+  
+  "metrics": {
+    "episodes_per_month": 4,
+    "publication_rate": "weekly",
+    "success_criteria": {
+      "research_validation": 0.80,
+      "production_on_time": 0.95,
+      "distribution_success": 0.99
+    }
+  },
+  
+  "constraints": {
+    "financial_limit": 500,
+    "time_per_episode": 480,
+    "equipment_setup_time": 120,
+    "guest_response_time": 345600
+  }
+}

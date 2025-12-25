@@ -1,0 +1,27 @@
+{
+  "agent_schema": {
+    "required_fields": [
+      "agent_id",
+      "name",
+      "domain",
+      "responsibilities"
+    ],
+    "optional_fields": [
+      "autonomy_level",
+      "update_frequency",
+      "confidence_threshold"
+    ]
+  },
+  "example": {
+    "agent_id": "research-001",
+    "name": "Research Agent",
+    "domain": "topic-research",
+    "responsibilities": [
+      "Find trending topics",
+      "Validate audience interest"
+    ],
+    "autonomy_level": "diagnostic",
+    "update_frequency": "daily",
+    "confidence_threshold": 0.75
+  }
+}
