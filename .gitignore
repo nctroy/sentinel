@@ -25,9 +25,16 @@ venv/
 ENV/
 env/
 
-# Environment Variables
+# Environment Variables - NEVER COMMIT THESE
 .env
 .env.local
+.env.*.local
+.env.production
+.env.development
+*.key
+*.pem
+credentials.json
+secrets.json
 
 # IDEs
 .vscode/
@@ -51,6 +58,10 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Security Reports (scan results only, keep templates)
+security-reports/*.json
+security-reports/*.log
 
 # Jupyter Notebook
 .ipynb_checkpoints

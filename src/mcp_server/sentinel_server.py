@@ -241,7 +241,7 @@ async def _get_or_create_agent(
 if __name__ == "__main__":
     uvicorn.run(
         app,
-        host=os.getenv("SERVER_HOST", "0.0.0.0"),
+        host=os.getenv("SERVER_HOST", "127.0.0.1"),
         port=int(os.getenv("SERVER_PORT", "8000")),
         log_level=os.getenv("LOG_LEVEL", "info").lower()
     )

@@ -1,0 +1,51 @@
+# Gitleaks configuration for Sentinel
+title = "Gitleaks Config for Sentinel"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[a-zA-Z0-9\-_]{95,}'''
+tags = ["key", "API", "secret"]
+
+[[rules]]
+id = "notion-api-key"
+description = "Notion Integration Token"
+regex = '''ntn_[a-zA-Z0-9]{50,}'''
+tags = ["key", "API", "secret"]
+
+[[rules]]
+id = "postgres-password"
+description = "PostgreSQL password in connection string"
+regex = '''postgresql://[^:]+:([^@]+)@'''
+tags = ["password", "database"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+id = "github-pat"
+description = "GitHub Personal Access Token"
+regex = '''ghp_[a-zA-Z0-9]{36,}'''
+tags = ["key", "GitHub"]
+
+[allowlist]
+description = "Allowlist for known false positives"
+paths = [
+  '''.env.example''',
+  '''.github/workflows/.*''',
+  '''README.md''',
+  '''docs/.*\.md''',
+]
+
+regexes = [
+  '''your-secure-password''',
+  '''xxxxxxxxxxxxxxxxxxxxx''',
+  '''sk-ant-xxxxxxxxxxxxxxxxxxxxx''',
+  '''ntn_xxxxxxxxxxxxxxxxxxxxx''',
+]
