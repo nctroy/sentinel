@@ -597,6 +597,20 @@ This is a personal portfolio project demonstrating production-grade AI systems e
 
 ---
 
+## 🤖 Contributors & Agent History
+
+Sentinel is a multi-agent system built by multi-agent collaboration.
+
+| Agent | Era | Primary Contributions |
+|-------|-----|-----------------------|
+| **Claude** (Anthropic) | *Foundation Era* | System architecture, enterprise documentation (ADRs), graduated autonomy model, observability stack (SigNoz/Superset). |
+| **Gemini** (Google) | *Execution Era* | Sentinel Command Center (Next.js), Security Integration (SARIF/Alerting), backend stabilization, CI/CD automation. |
+
+> **Policy Enacted:** 2025-12-28 (v1.1.0)
+> *All future commits and documentation updates must explicitly attribute significant architectural changes to the acting agent to maintain traceability.*
+
+---
+
 ## 👤 Author
 
 **Troy Shields**
