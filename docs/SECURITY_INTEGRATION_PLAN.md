@@ -28,11 +28,17 @@ Integrate ELLint (ESLint), OWASP ZAP, SonarQube, and Snyk into Sentinel for a un
     - `GET /security/vulnerabilities` - Returns paginated list of issues.
 - [x] **Frontend (Next.js):**
     - Create `SecurityDashboard` page.
-- [ ] **Components:**
-    - `SeverityChart` (Pie/Bar chart of issues).
-    - `VulnerabilityTable` (Sortable list of issues).
-    - `ToolStatus` (Connection status for Snyk/Sonar/etc).
+    - **Components:**
+        - `SeverityChart` (Pie/Bar chart of issues).
+        - `VulnerabilityTable` (Sortable list of issues).
+        - `ToolStatus` (Connection status for Snyk/Sonar/etc).
 
-## Phase 4: Automation
-- [ ] **CI/CD Integration:** Trigger `SecurityAggregatorAgent` ingestion after CI builds.
-- [ ] **Alerting:** Sentinel notifies if new Critical vulnerabilities are detected.
+## Phase 4: Automation (Current Focus)
+- [x] **CI/CD Integration Script:** Create `scripts/ci-security-scan.sh` to run linters and trigger ingestion via API (`POST /orchestrate`).
+- [x] **Alerting Logic:** Update `SecurityAggregatorAgent` to flag Critical issues as blocking bottlenecks with high impact scores.
+
+## Backlog / Future Enhancements
+- [ ] **Dashboard Charts:** Add trend lines for vulnerability counts over time.
+- [ ] **Snyk Integration:** Add API client to fetch issues directly from Snyk.
+- [ ] **ZAP Integration:** Parse OWASP ZAP JSON reports.
+- [ ] **Slack/Discord Webhooks:** Push notifications for critical alerts.

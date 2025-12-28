@@ -102,7 +102,17 @@ TL;DR:
 4. Share your Notion workspace with the integration
 5. Copy workspace ID to `.env`
 
-### 7. Verify Setup
+# You should see: "✓ Database initialized"
+
+### 9. Register Agents
+
+```bash
+# Register default security and project agents
+python -m src.cli.cli init-project config/security.json
+python -m src.cli.cli init-project config/job-search.json
+```
+
+### 10. Test the System
 
 # Test Notion connection (Deprecated)
 python -c "from src.storage.notion_client import NotionClient; print('✓ Notion connected')"
@@ -114,7 +124,17 @@ cd web && npm run dev
 python -m src.cli.cli run-cycle --mode diagnostic
 ```
 
+## CI/CD Integration
+
+Sentinel can automatically ingest security findings from your build pipelines.
+
+```bash
+# Run security scan and notify Sentinel
+./scripts/ci-security-scan.sh http://your-sentinel-api:8000
+```
+
 ## Running Sentinel
+...
 
 ### Command Line
 

@@ -20,6 +20,9 @@
     - **Status Overview:** Grid of `AgentCard`s showing health and current state.
     - **Bottleneck Feed:** List of recent findings with "Impact Score" badges.
     - **Quick Actions:** "Run Diagnostic Cycle" button.
+- [x] **Security View**
+    - **Severity Overview:** Cards showing Critical/High/Medium counts.
+    - **Vulnerability Table:** Detailed list of findings from `security-aggregator`.
 - [ ] **Agent Detail View**
     - Deep dive into a specific agent's history and logs.
     - Manual control to trigger specific actions.

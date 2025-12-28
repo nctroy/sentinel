@@ -17,6 +17,7 @@ Sentinel is a hierarchical, multi-agent orchestration system designed to manage 
 
 Each sub-agent owns a specific domain:
 - **Research Agent**: Market research, opportunity validation, customer discovery
+- **Security Aggregator**: ESLint, ZAP, and Snyk vulnerability tracking
 - **Production Agent**: Implementation, workflow automation, execution
 - **Distribution Agent**: Marketing, sales, customer communication
 - **Personal Development Agent**: Learning, skill acquisition, health
@@ -135,7 +136,7 @@ Agents communicate via **MCP (Model Context Protocol)**:
   ├─ Writes to PostgreSQL
   ├─ Real-time update to Command Center (GUI)
   └─ Sleeps
-  
+
   ├─ AI Business Agent (same)
   ├─ Photography Agent (same)
   └─ Personal Dev Agent (same)

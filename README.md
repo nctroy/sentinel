@@ -77,7 +77,7 @@ Sentinel helps you manage complex multi-domain workflows through intelligent AI 
      │            │              │               │
      ▼            ▼              ▼               ▼
 ┌─────────┐  ┌─────────┐  ┌──────────┐  ┌──────────────┐
-│  Job    │  │ GitHub  │  │Research  │  │   Future     │
+│  Job    │  │Security │  │Research  │  │   Future     │
 │ Search  │  │ Agent   │  │ Agent    │  │   Agents     │
 │ Agent   │  │         │  │          │  │ (Extensible) │
 └────┬────┘  └────┬────┘  └─────┬────┘  └──────┬───────┘
@@ -97,7 +97,8 @@ Sentinel helps you manage complex multi-domain workflows through intelligent AI 
 
 ### Core Capabilities
 
-- **🤖 Multi-Agent Orchestration**: Specialized agents for job search, GitHub triage, research, and business management
+- **🤖 Multi-Agent Orchestration**: Specialized agents for job search, security posture, research, and business management
+- **🛡️ Unified Security Dashboard**: Ingest and visualize findings from ESLint, ZAP, and Snyk in a single view
 - **📊 Dual-Dashboard System**:
   - **SigNoz**: Real-time operational monitoring (logs, metrics, traces)
   - **Apache Superset**: Executive business intelligence (KPIs, portfolio health)
@@ -226,7 +227,7 @@ sentinel/
 │   ├── agents/               # Agent implementations
 │   │   ├── base_agent.py     # Abstract base agent class
 │   │   ├── orchestrator.py   # Chief of Staff orchestrator
-│   │   ├── github_agent.py   # GitHub repository triage
+│   │   ├── security_aggregator.py # Security findings aggregator
 │   │   └── research_agent.py # Research and analysis agent
 │   │
 │   ├── mcp_server/           # Model Context Protocol server
@@ -374,6 +375,13 @@ See [ADR-006: Security Architecture](docs/adr/ADR-006-security-architecture.md) 
 ---
 
 ## 🛠️ Operations
+
+### CI/CD Security Scanning
+
+```bash
+# Run local security scan and trigger Sentinel ingestion
+./scripts/ci-security-scan.sh
+```
 
 ### Database Backup & Restore
 
@@ -609,6 +617,6 @@ This is a personal portfolio project demonstrating production-grade AI systems e
 
 ---
 
-**Last Updated:** 2025-12-27
-**Version:** 1.0.0
-**Status:** Production-Ready Foundation (5-Day Sprint Complete)
+**Last Updated:** 2025-12-28
+**Version:** 1.1.0
+**Status:** Production-Ready Foundation (Security Integration Complete)
