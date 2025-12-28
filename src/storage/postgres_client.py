@@ -77,6 +77,20 @@ class PostgresClient:
         finally:
             session.close()
 
+    def update_agent_last_run(self, agent_id: str):
+        """Update agent's last_run timestamp to now"""
+        session = self.Session()
+        try:
+            agent = session.query(Agent).filter_by(agent_id=agent_id).first()
+            if agent:
+                agent.last_run = datetime.now()
+                session.commit()
+                logger.info(f"Updated last_run for {agent_id}")
+        except Exception as e:
+            logger.error(f"Failed to update last_run for {agent_id}: {e}")
+        finally:
+            session.close()
+
     def save_bottleneck(self, agent_id: str, bottleneck: Dict[str, Any]) -> Bottleneck:
         """Save bottleneck to database"""
         session = self.Session()

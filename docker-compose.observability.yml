@@ -1,0 +1,153 @@
+# SigNoz Observability Stack
+# Provides distributed tracing, metrics, and logs visualization
+# Access SigNoz UI at: http://localhost:3301
+
+services:
+  # ClickHouse - Time-series database for traces and metrics
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.7.3-alpine
+    container_name: sentinel-clickhouse
+    hostname: clickhouse
+    volumes:
+      - ./docker/clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/logging.xml:ro
+      - ./docker/clickhouse/clickhouse-users.xml:/etc/clickhouse-server/users.d/logging.xml:ro
+      - ./docker/clickhouse/custom-function.xml:/etc/clickhouse-server/custom-function.xml:ro
+      # Cluster config removed for standalone setup (no Zookeeper)
+      # - ./docker/clickhouse/clickhouse-cluster.xml:/etc/clickhouse-server/config.d/cluster.xml:ro
+      - ./docker/clickhouse/data:/var/lib/clickhouse/
+      - ./docker/clickhouse/user_scripts:/var/lib/clickhouse/user_scripts/
+    environment:
+      - CLICKHOUSE_DB=signoz_traces
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sentinel-observability
+
+  # ClickHouse for metrics
+  clickhouse-metrics:
+    image: clickhouse/clickhouse-server:23.7.3-alpine
+    container_name: sentinel-clickhouse-metrics
+    hostname: clickhouse-metrics
+    volumes:
+      - ./docker/clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/logging.xml:ro
+      - ./docker/clickhouse/clickhouse-users.xml:/etc/clickhouse-server/users.d/logging.xml:ro
+      - ./docker/clickhouse/custom-function.xml:/etc/clickhouse-server/custom-function.xml:ro
+      # Cluster config removed for standalone setup (no Zookeeper)
+      # - ./docker/clickhouse/clickhouse-cluster.xml:/etc/clickhouse-server/config.d/cluster.xml:ro
+      - ./docker/clickhouse-metrics/data:/var/lib/clickhouse/
+    environment:
+      - CLICKHOUSE_DB=signoz_metrics
+    ports:
+      - "9001:9000"
+      - "8124:8123"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sentinel-observability
+
+  # SigNoz Query Service - Backend API
+  query-service:
+    image: signoz/query-service:0.39.0
+    container_name: sentinel-query-service
+    command: ["-config=/root/config/prometheus.yml"]
+    volumes:
+      - ./docker/prometheus.yml:/root/config/prometheus.yml
+      - ./docker/signoz-dashboards:/root/config/dashboards
+      - ./docker/data/signoz/:/var/lib/signoz/
+    environment:
+      - ClickHouseUrl=tcp://clickhouse:9000
+      - ALERTMANAGER_API_PREFIX=http://alertmanager:9093/api/
+      - SIGNOZ_LOCAL_DB_PATH=/var/lib/signoz/signoz.db
+      - DASHBOARDS_PATH=/root/config/dashboards
+      - STORAGE=clickhouse
+      - GODEBUG=netdns=go
+      - TELEMETRY_ENABLED=true
+      - DEPLOYMENT_TYPE=docker-standalone-amd
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    depends_on:
+      - clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      sentinel-observability:
+        aliases:
+          - signoz-query-service
+
+  # SigNoz Frontend - Web UI
+  frontend:
+    image: signoz/frontend:0.39.0
+    container_name: sentinel-frontend
+    environment:
+      - FRONTEND_API_ENDPOINT=http://query-service:8080
+    ports:
+      - "3301:3301"
+    restart: unless-stopped
+    depends_on:
+      - query-service
+    networks:
+      - sentinel-observability
+
+  # OpenTelemetry Collector - Receives and processes telemetry data
+  otel-collector:
+    image: signoz/signoz-otel-collector:0.88.8
+    container_name: sentinel-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=sentinel-otel-collector,host.name=sentinel-host
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888:8888"   # Prometheus metrics
+      - "13133:13133" # Health check
+    restart: unless-stopped
+    depends_on:
+      - clickhouse
+      - query-service
+    networks:
+      - sentinel-observability
+
+  # AlertManager - Handles alerts
+  alertmanager:
+    image: signoz/alertmanager:0.23.4
+    container_name: sentinel-alertmanager
+    volumes:
+      - ./docker/alertmanager/data:/data
+    command:
+      - --queryService.url=http://query-service:8080
+      - --storage.path=/data
+    ports:
+      - "9093:9093"
+    restart: unless-stopped
+    depends_on:
+      - query-service
+    networks:
+      - sentinel-observability
+
+networks:
+  sentinel-observability:
+    name: sentinel-observability
+    driver: bridge
+
+volumes:
+  clickhouse-data:
+  clickhouse-metrics-data:
+  signoz-data:
+  alertmanager-data:

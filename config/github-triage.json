@@ -1,0 +1,17 @@
+{
+    "project": "open-source-triage",
+    "description": "Automated triage for public repositories",
+    "sub_agents": [
+        {
+            "agent_id": "github-triage-01",
+            "name": "GitHub Triage Bot",
+            "domain": "github-triage",
+            "responsibilities": [
+                "Monitor stale issues",
+                "Identify unassigned high-priority bugs",
+                "Track PR review cycles"
+            ],
+            "autonomy_level": "diagnostic"
+        }
+    ]
+}

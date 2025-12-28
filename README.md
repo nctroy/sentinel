@@ -1,179 +1,611 @@
 # Sentinel
 
-**Sentinel** is a multi-agent orchestration system designed to manage domain-specific AI agents and coordinate their priorities across projects. It serves as your Chief of Staff, identifying bottlenecks, automating workflows, and scaling your problem-solving capacity.
+**Production-Grade Multi-Agent AI Orchestration System**
 
-## Features
+Sentinel is a comprehensive AI orchestration platform that manages domain-specific agents across multiple business portfolios. It serves as your intelligent Chief of Staff, identifying bottlenecks, synthesizing priorities, and coordinating action across your professional and personal projects.
 
-- **Multi-Agent Architecture**: Run specialized sub-agents for different domains (job search, AI business, photography, etc.)
-- **Daily Diagnostics**: Each sub-agent identifies daily bottlenecks in its domain
-- **Weekly Orchestration**: Central orchestrator agent synthesizes findings and routes priorities
-- **Persistent State**: PostgreSQL for system state, Notion for human-readable dashboards
-- **MCP Integration**: Agents communicate via Model Context Protocol for deep reasoning
-- **Autonomous Execution**: Graduated autonomy model (read-only → conditional → full)
-- **Audit Trails**: Complete logging of decisions, reasoning, and outcomes
+> **Portfolio Project** | Demonstrates cloud security architecture, AI systems engineering, and production DevOps practices
 
-## Architecture
+---
+
+## 🎯 Overview
+
+Sentinel helps you manage complex multi-domain workflows through intelligent AI agents:
+
+- **Job Search Optimization**: Track applications, interview prep, salary research
+- **GitHub Repository Management**: Issue triage, PR reviews, dependency updates
+- **Multi-Business Portfolio**: AI literacy consulting, photography projects, personal development
+- **30-in-30 Challenge**: Project tracking and progress monitoring
+
+**Key Differentiators:**
+- Production-ready observability (SigNoz + OpenTelemetry)
+- Executive business intelligence (Apache Superset)
+- Comprehensive security architecture (pre-commit scanning, TLS/SSL, audit trails)
+- Graduated autonomy model (safe AI decision-making)
+
+---
+
+## 🏗️ Architecture
+
+### System Overview
 
 ```
-┌─────────────────────────────────────────┐
-│         Your Strategic Goals            │
-└────────────────┬────────────────────────┘
-                 │
-         ┌───────▼────────┐
-         │  Orchestrator  │
-         │  (Chief of     │
-         │   Staff)       │
-         └───┬──┬──┬──┬───┘
-             │  │  │  │
-    ┌────────┘  │  │  └──────────┐
-    │        ┌──┘  └──┐           │
-    ▼        ▼        ▼           ▼
-┌──────┐ ┌──────┐ ┌──────┐   ┌────────┐
-│ Job  │ │  AI  │ │Photo │   │Personal│
-│Search│ │Biz   │ │graphy│   │Dev     │
-│Agent │ │Agent │ │Agent │   │Agent   │
-└────┬─┘ └──┬───┘ └──┬───┘   └────┬───┘
-     │      │        │            │
-     └──────┼────┬───┼────────────┘
-            │    │   │
-     ┌──────▼────▼───▼──┐
-     │  Persistent      │
-     │  State Store     │
-     │ (PostgreSQL)     │
-     └──────┬───────────┘
-            │
-     ┌──────▼──────────┐
-     │  Notion         │
-     │  Dashboard      │
-     └─────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                   SENTINEL PRODUCTION STACK                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              Nginx Reverse Proxy (SSL/TLS)               │  │
+│  │               your-domain.com (Port 443)                 │  │
+│  └────┬─────────────────┬────────────────┬──────────────────┘  │
+│       │                 │                │                      │
+│       ▼                 ▼                ▼                      │
+│  ┌─────────┐      ┌──────────┐    ┌──────────┐                │
+│  │ SigNoz  │      │ Superset │    │ FastAPI  │                │
+│  │  Ops    │      │Executive │    │Sentinel  │                │
+│  │Dashboard│      │Dashboard │    │   API    │                │
+│  │ :3301   │      │  :8088   │    │  :8000   │                │
+│  └────┬────┘      └─────┬────┘    └────┬─────┘                │
+│       │                 │              │                        │
+│       ▼                 ▼              ▼                        │
+│  ┌─────────────────────────────────────────────┐               │
+│  │         PostgreSQL State Store              │               │
+│  │  • Agents      • Decisions                  │               │
+│  │  • Bottlenecks • Weekly Plans               │               │
+│  │  • Notion Sync • Audit Logs                 │               │
+│  └──────────────────┬──────────────────────────┘               │
+│                     │                                           │
+│           ┌─────────┴──────────┐                               │
+│           ▼                    ▼                                │
+│    ┌────────────┐       ┌──────────┐                           │
+│    │OpenTelemetry│      │  Notion  │                           │
+│    │   Traces   │       │   API    │                           │
+│    └────────────┘       └──────────┘                           │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Quick Start
+### Agent Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│              Orchestrator Agent (Chief of Staff)         │
+│  • Synthesizes bottlenecks from all sub-agents          │
+│  • Creates weekly prioritized plans                     │
+│  • Detects cross-domain conflicts and dependencies      │
+└────┬────────────┬──────────────┬───────────────┬────────┘
+     │            │              │               │
+     ▼            ▼              ▼               ▼
+┌─────────┐  ┌─────────┐  ┌──────────┐  ┌──────────────┐
+│  Job    │  │ GitHub  │  │Research  │  │   Future     │
+│ Search  │  │ Agent   │  │ Agent    │  │   Agents     │
+│ Agent   │  │         │  │          │  │ (Extensible) │
+└────┬────┘  └────┬────┘  └─────┬────┘  └──────┬───────┘
+     │            │             │              │
+     └────────────┴─────────────┴──────────────┘
+                       │
+                       ▼
+            ┌───────────────────┐
+            │ Shared PostgreSQL │
+            │   State Store     │
+            └───────────────────┘
+```
+
+---
+
+## ✨ Features
+
+### Core Capabilities
+
+- **🤖 Multi-Agent Orchestration**: Specialized agents for job search, GitHub triage, research, and business management
+- **📊 Dual-Dashboard System**:
+  - **SigNoz**: Real-time operational monitoring (logs, metrics, traces)
+  - **Apache Superset**: Executive business intelligence (KPIs, portfolio health)
+- **🔐 Production Security**: Pre-commit scanning (Gitleaks, Bandit, Safety), TLS/SSL, rate limiting, audit trails
+- **📈 OpenTelemetry Integration**: Industry-standard observability and distributed tracing
+- **🎛️ Graduated Autonomy**: Safe AI decision-making (diagnostic → conditional → full autonomy)
+- **📝 Complete Audit Trail**: Every agent decision logged with reasoning and confidence scores
+
+### Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Language** | Python 3.10+ | Application development |
+| **API Framework** | FastAPI | Async web API |
+| **Database** | PostgreSQL 15 | State persistence |
+| **ORM** | SQLAlchemy 2.0 | Database abstraction |
+| **AI** | Claude API (Anthropic) | Agent intelligence |
+| **Observability** | SigNoz + OpenTelemetry | Ops monitoring |
+| **Business Intelligence** | Apache Superset | Executive dashboards |
+| **Reverse Proxy** | Nginx | SSL termination, routing |
+| **SSL** | Let's Encrypt | Free TLS certificates |
+| **CLI** | Typer | Command-line interface |
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.10+
-- PostgreSQL (local or AWS RDS)
-- Notion API credentials
-- Claude API access (via MCP)
+
+- **Python 3.10+** (Python 3.11+ recommended)
+- **Docker & Docker Compose** (for observability stack)
+- **PostgreSQL 15** (local or managed)
+- **Claude API key** (from Anthropic)
+- **Notion API key** (optional, for dashboard integration)
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/nctroy/sentinel.git
+# 1. Clone repository
+git clone https://github.com/yourusername/sentinel.git
 cd sentinel
 
-# Install dependencies
+# 2. Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
-# Set up environment
+# 4. Set up environment variables
 cp .env.example .env
-# Edit .env with your credentials
-```
+# Edit .env with your API keys and database credentials
 
-### Running Locally
-
-```bash
-# Start PostgreSQL
-# (On macOS with Homebrew: brew services start postgresql)
-
-# Initialize database
+# 5. Initialize database
 python -m src.cli.cli init-db
 
-# Run first cycle
-python -m src.cli.cli run-cycle --mode diagnostic
-
-# View results in Notion dashboard
+# 6. Install pre-commit hooks (security scanning)
+pre-commit install
 ```
 
-## Project Structure
+### Running the System
+
+#### 1. Start Core Sentinel Application
+
+```bash
+# Run diagnostic cycle (read-only mode)
+python -m src.cli.cli run-cycle --mode diagnostic
+
+# Run with specific agent
+python -m src.cli.cli run-agent job-search
+
+# Run orchestrator to synthesize weekly plan
+python -m src.cli.cli orchestrate
+```
+
+#### 2. Start Observability Stack (SigNoz)
+
+```bash
+# Deploy SigNoz (ClickHouse, query service, frontend)
+./scripts/start-signoz.sh
+
+# Access SigNoz UI
+open http://localhost:3301
+
+# Stop SigNoz
+./scripts/stop-signoz.sh
+```
+
+#### 3. Start Analytics Stack (Apache Superset)
+
+```bash
+# Deploy Superset (Redis, PostgreSQL metadata, Superset web/worker)
+./scripts/start-superset.sh
+
+# Access Superset UI
+open http://localhost:8088
+
+# Default credentials: admin / admin (change immediately!)
+
+# Stop Superset
+./scripts/stop-superset.sh
+```
+
+#### 4. Production Deployment (SSL/TLS)
+
+```bash
+# Set up Nginx reverse proxy with Let's Encrypt SSL
+sudo ./scripts/setup-ssl.sh your-domain.com your-email@example.com
+
+# Access production endpoints:
+# https://your-domain.com/ops       → SigNoz
+# https://your-domain.com/executive → Superset
+# https://your-domain.com/api       → FastAPI
+```
+
+---
+
+## 📂 Project Structure
 
 ```
 sentinel/
 ├── src/
-│   ├── mcp_server/        # MCP server for agent communication
-│   ├── agents/            # Agent implementations
-│   ├── storage/           # Database and Notion clients
-│   ├── schemas/           # Data models and configurations
-│   └── cli/               # Command-line interface
-├── config/                # Example configurations
-├── docs/                  # Architecture and setup docs
-├── tests/                 # Unit and integration tests
-└── docker/                # Docker configuration
+│   ├── agents/               # Agent implementations
+│   │   ├── base_agent.py     # Abstract base agent class
+│   │   ├── orchestrator.py   # Chief of Staff orchestrator
+│   │   ├── github_agent.py   # GitHub repository triage
+│   │   └── research_agent.py # Research and analysis agent
+│   │
+│   ├── mcp_server/           # Model Context Protocol server
+│   │   └── sentinel_server.py
+│   │
+│   ├── storage/              # Data persistence layer
+│   │   ├── models.py         # SQLAlchemy ORM models
+│   │   ├── postgres_client.py
+│   │   └── notion_client.py
+│   │
+│   ├── schemas/              # Configuration schemas
+│   │   └── project_schema.py
+│   │
+│   └── cli/                  # Command-line interface
+│       └── cli.py
+│
+├── docs/
+│   ├── adr/                  # Architecture Decision Records
+│   │   ├── ADR-001-observability-stack-selection.md
+│   │   ├── ADR-002-database-schema-design.md
+│   │   ├── ADR-003-graduated-autonomy-model.md
+│   │   ├── ADR-004-agent-communication-protocol.md
+│   │   ├── ADR-005-python-technology-stack.md
+│   │   └── ADR-006-security-architecture.md
+│   │
+│   └── sprint/               # Sprint planning and retrospectives
+│       ├── CLAUDE_CODE_BRIEFING.md
+│       ├── DAY_4_COMPLETION_REPORT.md
+│       └── ADR-001-observability-stack-selection.md
+│
+├── scripts/                  # Operational scripts
+│   ├── backup-db.sh          # PostgreSQL backup (with encryption)
+│   ├── restore-db.sh         # Database restore
+│   ├── setup-ssl.sh          # Let's Encrypt SSL automation
+│   ├── start-signoz.sh       # SigNoz deployment
+│   ├── stop-signoz.sh
+│   ├── start-superset.sh     # Superset deployment
+│   └── stop-superset.sh
+│
+├── nginx/
+│   └── nginx.conf            # Reverse proxy configuration
+│
+├── superset/
+│   ├── superset_config.py    # Superset configuration
+│   └── dashboard_queries.sql # Pre-built SQL queries
+│
+├── config/                   # Agent configurations
+│   ├── github-triage.json
+│   └── research.json
+│
+├── docker-compose.signoz.yml    # SigNoz stack
+├── docker-compose.analytics.yml # Superset stack
+├── requirements.txt
+├── requirements-dev.txt
+├── .env.example
+├── .gitignore
+└── .pre-commit-config.yaml   # Security scanning hooks
 ```
 
-## Documentation
+---
 
-- [Architecture Overview](docs/ARCHITECTURE.md) — How Sentinel works
-- [Setup Guide](docs/SETUP.md) — Detailed setup instructions
-- [Agent Design](docs/AGENT_DESIGN.md) — Building domain-specific agents
-- [Notion Integration](docs/NOTION_SETUP.md) — Connecting to your Notion workspace
+## 🔒 Security
 
-## Configuration
+Sentinel implements defense-in-depth security architecture:
 
-Sentinel uses JSON configuration files to define agents and their behavior:
+### Pre-Commit Security Scanning
 
-```json
-{
-  "project": "podcast-production",
-  "sub_agents": [
-    {
-      "name": "research",
-      "domain": "topic-research",
-      "responsibilities": ["Find topics", "Validate audience interest"]
-    }
-  ],
-  "orchestration_rules": {
-    "bottleneck_prioritization": "impact-score"
-  }
-}
+```bash
+# Automatically runs on every commit:
+# ✓ Gitleaks   - Detect secrets in code
+# ✓ Bandit     - Python security analysis
+# ✓ Safety     - Dependency vulnerability scanning
 ```
 
-See `config/podcast-example.json` for a complete example.
+### Secrets Management
 
-## Development
+- **Never commit secrets** - `.env` file for all credentials
+- **Environment variables** - 12-factor app methodology
+- **GPG encryption** - Optional backup encryption
+
+### Network Security
+
+- **TLS 1.2+** - Modern SSL/TLS only
+- **Let's Encrypt** - Free automated certificates
+- **Rate limiting** - API protection (10 req/s, 5 req/s admin)
+- **Basic auth** - Dashboard access control
+- **Firewall rules** - Ports 80/443 only
+
+### Database Security
+
+- **Least privilege** - Application user has minimal permissions
+- **SSL connections** - Encrypted database connections
+- **Audit logging** - Complete decision history
+
+See [ADR-006: Security Architecture](docs/adr/ADR-006-security-architecture.md) for complete details.
+
+---
+
+## 📊 Dashboards
+
+### SigNoz Operations Dashboard
+
+**Purpose:** Real-time operational monitoring for technical teams
+
+**Access:** `https://your-domain.com/ops` (basic auth required)
+
+**Features:**
+- Live agent health monitoring
+- API latency and error rates
+- Distributed traces for debugging
+- Log aggregation and search
+- Custom alerts and notifications
+
+### Apache Superset Executive Dashboard
+
+**Purpose:** Strategic business intelligence for decision-makers
+
+**Access:** `https://your-domain.com/executive` (basic auth required)
+
+**Pre-built Dashboards:**
+
+1. **Job Search Executive View**
+   - Application conversion funnel
+   - Interview pipeline
+   - Salary research progress
+   - Time-to-offer tracking
+
+2. **30-in-30 Challenge Tracker**
+   - Daily project completion rate
+   - Velocity trends
+   - Bottleneck identification
+
+3. **Multi-Business Portfolio**
+   - Revenue across business lines
+   - Active project counts
+   - Resource allocation
+
+4. **Sentinel System Health**
+   - Agent productivity scores
+   - Bottleneck resolution rates
+   - Decision confidence trends
+
+**SQL Queries:** See `superset/dashboard_queries.sql` for all queries
+
+---
+
+## 🛠️ Operations
+
+### Database Backup & Restore
+
+```bash
+# Create backup (compressed)
+./scripts/backup-db.sh
+
+# Create encrypted backup
+./scripts/backup-db.sh --encrypt
+
+# Restore from backup
+./scripts/restore-db.sh backups/postgres/sentinel_20251227_140530.sql.gz
+
+# Force restore (skip confirmation)
+./scripts/restore-db.sh backup.sql.gz --force
+```
+
+**Automated Backups (Cron):**
+```bash
+# Add to crontab (daily at 2 AM):
+0 2 * * * cd /path/to/sentinel && ./scripts/backup-db.sh --encrypt
+```
+
+### SSL Certificate Management
+
+```bash
+# Initial setup
+sudo ./scripts/setup-ssl.sh your-domain.com admin@example.com
+
+# Auto-renewal (configured automatically)
+# Certificates renew daily at 3:00 AM via cron
+
+# Test renewal manually
+sudo certbot renew --dry-run
+```
+
+### Monitoring and Logs
+
+```bash
+# View Sentinel application logs
+docker logs sentinel-app
+
+# View SigNoz logs
+docker logs signoz-frontend
+docker logs signoz-query-service
+
+# View Superset logs
+docker logs sentinel-superset
+docker logs sentinel-superset-worker
+
+# View Nginx access logs
+sudo tail -f /var/log/nginx/sentinel_access.log
+
+# View Nginx error logs
+sudo tail -f /var/log/nginx/sentinel_error.log
+```
+
+---
+
+## 🧪 Development
 
 ### Running Tests
 
 ```bash
+# All tests
 pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=src --cov-report=html
+
+# Specific test file
+pytest tests/test_agents.py -v
 ```
 
-### Development Mode
+### Code Quality
 
 ```bash
-# Run with verbose logging
-python -m src.cli.cli run-cycle --mode diagnostic --verbose
+# Format code (Black)
+black src/ tests/
+
+# Lint code (Ruff)
+ruff check src/ tests/
+
+# Type checking (mypy)
+mypy src/
+
+# Run all pre-commit hooks manually
+pre-commit run --all-files
 ```
 
-## Deployment
+### Database Migrations
 
-### Local Development
-PostgreSQL running locally, perfect for testing.
+```bash
+# Create new migration
+alembic revision --autogenerate -m "Add new column"
 
-### AWS RDS
-Production-ready PostgreSQL deployment (free tier available).
+# Apply migrations
+alembic upgrade head
 
-See [Setup Guide](docs/SETUP.md) for cloud deployment instructions.
-
-## Safety & Autonomy
-
-Sentinel implements a graduated autonomy model:
-
-1. **Diagnostic Mode** (default): Agents analyze and report; no actions
-2. **Conditional Autonomy**: Agents execute pre-approved action types
-3. **Full Autonomy**: Agents make independent decisions (requires explicit trust)
-
-You control the autonomy level per agent and per action type.
-
-## Contributing
-
-This is a personal portfolio project. For questions or collaboration inquiries, contact Troy directly.
-
-## License
-
-MIT License — See LICENSE file for details.
+# Rollback one migration
+alembic downgrade -1
+```
 
 ---
 
-**Built by Troy** | Cloud Security Architect | AI Systems Builder
+## 📖 Architecture Decision Records (ADRs)
+
+Comprehensive documentation of all significant architectural decisions:
+
+1. **[ADR-001: Observability Stack Selection](docs/adr/ADR-001-observability-stack-selection.md)**
+   - Why SigNoz + Superset over Grafana
+   - Rationale for dual-dashboard approach
+   - OpenTelemetry integration strategy
+
+2. **[ADR-002: Database Schema Design](docs/adr/ADR-002-database-schema-design.md)**
+   - PostgreSQL schema structure
+   - SQLAlchemy ORM justification
+   - Audit trail requirements
+
+3. **[ADR-003: Graduated Autonomy Model](docs/adr/ADR-003-graduated-autonomy-model.md)**
+   - Three-tier autonomy framework
+   - Safety guardrails and circuit breakers
+   - Trust calibration mechanisms
+
+4. **[ADR-004: Agent Communication Protocol](docs/adr/ADR-004-agent-communication-protocol.md)**
+   - Current: Database state sharing
+   - Future: Model Context Protocol (MCP)
+   - Hybrid architecture approach
+
+5. **[ADR-005: Python Technology Stack](docs/adr/ADR-005-python-technology-stack.md)**
+   - Python 3.10+ justification
+   - FastAPI, SQLAlchemy, Typer choices
+   - Dependency management strategy
+
+6. **[ADR-006: Security Architecture](docs/adr/ADR-006-security-architecture.md)**
+   - Defense-in-depth layers
+   - Secrets management approach
+   - Compliance and audit requirements
+
+---
+
+## 🎓 Learning Resources
+
+### For Interviewers
+
+**This project demonstrates:**
+- ✅ **Cloud Security Architecture** - SSL/TLS, secrets management, defense-in-depth
+- ✅ **AI Systems Engineering** - Multi-agent orchestration, graduated autonomy, safety
+- ✅ **Production DevOps** - Docker Compose, Nginx, monitoring, backup/restore
+- ✅ **Database Design** - PostgreSQL schema, migrations, audit trails
+- ✅ **API Development** - FastAPI, OpenAPI, async/await patterns
+- ✅ **Observability** - OpenTelemetry, SigNoz, distributed tracing
+- ✅ **Business Intelligence** - Superset dashboards, SQL analytics
+- ✅ **Documentation** - ADRs, comprehensive README, code comments
+
+**Interview Talking Points:**
+1. Why hybrid SigNoz + Superset vs. monolithic Grafana
+2. Security scanning automation via pre-commit hooks
+3. Graduated autonomy model for safe AI decision-making
+4. OpenTelemetry instrumentation for vendor-neutral observability
+5. Database state sharing vs. MCP for agent communication
+
+### For Contributors
+
+1. Read [CLAUDE_CODE_BRIEFING.md](docs/sprint/CLAUDE_CODE_BRIEFING.md) for project context
+2. Review all ADRs in `docs/adr/` to understand design decisions
+3. Check [Sprint Documentation](docs/sprint/) for implementation history
+4. Run `pre-commit install` to enable security scanning
+5. Write tests for all new features (80% coverage minimum)
+
+---
+
+## 🚦 Deployment Checklist
+
+Before production deployment:
+
+**Security:**
+- [ ] All secrets in `.env` (not in code)
+- [ ] Pre-commit hooks installed and passing
+- [ ] SSL/TLS certificates configured
+- [ ] Firewall rules applied (ports 80/443 only)
+- [ ] Basic auth configured for admin dashboards
+- [ ] Database backups automated (cron job)
+- [ ] Database user has minimum required permissions
+
+**Monitoring:**
+- [ ] SigNoz deployed and accessible
+- [ ] Superset deployed with Sentinel database connection
+- [ ] OpenTelemetry instrumentation enabled
+- [ ] Alert rules configured (uptime, error rates)
+- [ ] Log aggregation working
+
+**Infrastructure:**
+- [ ] PostgreSQL backups tested (backup + restore)
+- [ ] Nginx reverse proxy configured
+- [ ] Domain DNS pointed to server
+- [ ] Let's Encrypt auto-renewal configured
+- [ ] Resource limits set (Docker memory/CPU)
+
+**Application:**
+- [ ] All agents registered in database
+- [ ] Configuration files validated
+- [ ] API health check endpoint responding
+- [ ] Notion integration tested (if using)
+
+---
+
+## 📜 License
+
+MIT License - See [LICENSE](LICENSE) file for details.
+
+This is a personal portfolio project demonstrating production-grade AI systems engineering.
+
+---
+
+## 👤 Author
+
+**Troy Shields**
+- Cloud Security Architect
+- AI Systems Builder
+- Multi-Domain Portfolio Manager
+
+**Contact:** Available for cloud security, AI engineering, and DevOps consulting opportunities.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Anthropic** - Claude API for agent intelligence
+- **SigNoz Team** - OpenTelemetry-native observability platform
+- **Apache Software Foundation** - Superset business intelligence platform
+- **Let's Encrypt** - Free SSL/TLS certificates
+
+---
+
+**Last Updated:** 2025-12-27
+**Version:** 1.0.0
+**Status:** Production-Ready Foundation (5-Day Sprint Complete)

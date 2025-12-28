@@ -16,6 +16,12 @@ notion-client==2.2.1
 # Claude/AI
 anthropic==0.7.0
 
+# OpenTelemetry (Observability)
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+opentelemetry-instrumentation-fastapi==0.43b0
+opentelemetry-exporter-otlp==1.22.0
+
 # MCP Server
 # mcp==0.3.0  # TODO: Verify correct MCP package name
 

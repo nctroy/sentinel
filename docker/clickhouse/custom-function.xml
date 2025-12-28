@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <function>
+        <name>arrayFilter</name>
+        <return_type>Array</return_type>
+        <argument>
+            <type>Array</type>
+        </argument>
+        <argument>
+            <type>Lambda</type>
+        </argument>
+    </function>
+</clickhouse>

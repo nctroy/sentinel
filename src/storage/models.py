@@ -86,7 +86,7 @@ class OrchestratorPlan(Base):
     __tablename__ = 'orchestrator_plans'
 
     id = Column(Integer, primary_key=True)
-    week = Column(String(20), unique=True, nullable=False, index=True)  # e.g., "2024-W52"
+    week = Column(String(100), unique=True, nullable=False, index=True)  # e.g., "2024-W52"
     top_bottleneck = Column(JSON, nullable=False)
     priority_ranking = Column(JSON)
     resource_allocation = Column(JSON)

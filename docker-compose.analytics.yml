@@ -1,0 +1,110 @@
+# Apache Superset Analytics Stack
+# Provides business intelligence dashboards for Sentinel multi-agent system
+# Access Superset UI at: http://localhost:8088
+
+services:
+  # Redis - Caching and celery broker
+  redis:
+    image: redis:7.2-alpine
+    container_name: sentinel-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - sentinel-analytics
+
+  # PostgreSQL - Superset metadata database
+  superset-db:
+    image: postgres:15-alpine
+    container_name: sentinel-superset-db
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset_password
+    volumes:
+      - superset-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - sentinel-analytics
+
+  # Apache Superset - Business Intelligence Platform
+  superset:
+    image: apache/superset:3.1.0
+    container_name: sentinel-superset
+    environment:
+      # Database connection for Superset metadata
+      SUPERSET_SECRET_KEY: 'sentinel_superset_secret_key_change_in_production'
+      DATABASE_DB: superset
+      DATABASE_HOST: superset-db
+      DATABASE_PASSWORD: superset_password
+      DATABASE_USER: superset
+      DATABASE_PORT: 5432
+      DATABASE_DIALECT: postgresql
+
+      # Redis for caching and Celery
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # Superset configuration
+      SUPERSET_WEBSERVER_PORT: 8088
+      SUPERSET_WEBSERVER_TIMEOUT: 300
+      SUPERSET_LOAD_EXAMPLES: 'no'
+
+      # Worker configuration
+      SUPERSET_WORKER_COUNT: 4
+
+    ports:
+      - "8088:8088"
+    depends_on:
+      - superset-db
+      - redis
+    volumes:
+      - superset-home:/app/superset_home
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    restart: unless-stopped
+    networks:
+      - sentinel-analytics
+    command: >
+      bash -c "
+      superset db upgrade &&
+      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@sentinel.local --password admin &&
+      superset init &&
+      superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger
+      "
+
+  # Superset Worker - Async query execution
+  superset-worker:
+    image: apache/superset:3.1.0
+    container_name: sentinel-superset-worker
+    environment:
+      DATABASE_DB: superset
+      DATABASE_HOST: superset-db
+      DATABASE_PASSWORD: superset_password
+      DATABASE_USER: superset
+      DATABASE_PORT: 5432
+      DATABASE_DIALECT: postgresql
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SUPERSET_SECRET_KEY: 'sentinel_superset_secret_key_change_in_production'
+    depends_on:
+      - superset-db
+      - redis
+    volumes:
+      - superset-home:/app/superset_home
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    restart: unless-stopped
+    networks:
+      - sentinel-analytics
+    command: celery --app=superset.tasks.celery_app:app worker
+
+networks:
+  sentinel-analytics:
+    name: sentinel-analytics
+    driver: bridge
+
+volumes:
+  redis-data:
+  superset-db-data:
+  superset-home:

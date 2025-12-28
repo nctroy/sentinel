@@ -1,0 +1,17 @@
+{
+    "project": "executive-intelligence",
+    "description": "Continuous monitoring and high-signal intelligence surfacing",
+    "sub_agents": [
+        {
+            "agent_id": "research-01",
+            "name": "Senior Research Analyst",
+            "domain": "ai-systems-research",
+            "responsibilities": [
+                "Monitor arXiv for agentic AI papers",
+                "Track emerging open source tools",
+                "Filter noise from tech news"
+            ],
+            "autonomy_level": "diagnostic"
+        }
+    ]
+}

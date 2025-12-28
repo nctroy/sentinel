@@ -76,10 +76,10 @@ cp .env.example .env
 
 ```bash
 DATABASE_URL=postgresql://sentinel:your-password@localhost:5432/sentinel
-NOTION_API_KEY=ntn_xxxxxxxxxxxxxxxxxxxxx
-NOTION_WORKSPACE_ID=38d5edab-553a-4fe3-9a5a-fe188a4c210c
-NOTION_WORKSPACE_NAME=superonyx
-ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxx
+NOTION_API_KEY=secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NOTION_WORKSPACE_ID=your-workspace-id
+NOTION_WORKSPACE_NAME=your-workspace-name
+ANTHROPIC_API_KEY=sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ### 5. Initialize Database

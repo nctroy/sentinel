@@ -1,0 +1,122 @@
+# OpenTelemetry Collector Configuration for Sentinel
+# This collector receives traces from the Sentinel application and exports to SigNoz
+
+receivers:
+  # OTLP receiver for gRPC (port 4317)
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Prometheus receiver for scraping metrics
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 30s
+          static_configs:
+            - targets: ['localhost:8888']
+
+  # Host metrics receiver (optional - for system metrics)
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+      disk:
+      filesystem:
+      load:
+      memory:
+      network:
+      paging:
+
+processors:
+  # Batch processor - batches telemetry data before export
+  batch:
+    send_batch_size: 10000
+    send_batch_max_size: 11000
+    timeout: 10s
+
+  # Memory limiter - prevents OOM by dropping data when memory limit is reached
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1000
+    spike_limit_mib: 200
+
+  # Resource detection - adds host metadata to telemetry
+  resourcedetection:
+    detectors: [env, system, docker]
+    timeout: 5s
+
+  # Attributes processor - adds custom attributes
+  attributes:
+    actions:
+      - key: service.namespace
+        value: sentinel
+        action: insert
+      - key: deployment.environment
+        from_attribute: ENVIRONMENT
+        action: insert
+
+  # Span processor - modifies span attributes
+  span:
+    name:
+      to_attributes:
+        rules:
+          - ^\/api\/v(?P<version>[0-9]+)\/(?P<operation>.*)$
+      from_attributes: ["http.method", "http.route"]
+
+exporters:
+  # Logging exporter for debugging
+  logging:
+    verbosity: normal
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+  # Prometheus exporter for metrics
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: sentinel
+
+extensions:
+  # Health check extension
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+  # Performance profiler extension
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+  # zPages extension for debugging
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+service:
+  extensions: [health_check, pprof, zpages]
+
+  pipelines:
+    # Traces pipeline - simplified for standalone testing
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection, attributes]
+      exporters: [logging]
+
+    # Metrics pipeline - simplified for standalone testing
+    metrics:
+      receivers: [otlp, prometheus, hostmetrics]
+      processors: [memory_limiter, batch, resourcedetection, attributes]
+      exporters: [prometheus]
+
+    # Logs pipeline
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [logging]
+
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      level: detailed
+      address: 0.0.0.0:8888

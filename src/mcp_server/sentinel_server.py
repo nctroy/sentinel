@@ -12,13 +12,18 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
 import uvicorn
 
 from src.agents.orchestrator import OrchestratorAgent
 from src.agents.sub_agent import SubAgent
 from src.storage.postgres_client import PostgresClient
 from src.storage.notion_client import NotionClient
+
+# Load environment variables
+load_dotenv()
 
 # Setup logging
 logging.basicConfig(
@@ -32,6 +37,15 @@ app = FastAPI(
     title="Sentinel MCP Server",
     description="Multi-agent orchestration via Model Context Protocol",
     version="0.1.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 # Initialize clients
@@ -63,7 +77,7 @@ class GetStateRequest(BaseModel):
 async def startup():
     """Initialize orchestrator and database"""
     global orchestrator
-    await db.connect()
+    db.connect()
     orchestrator = OrchestratorAgent()
     logger.info("Sentinel MCP Server started")
 
@@ -71,7 +85,7 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     """Close database connection"""
-    await db.close()
+    db.close()
     logger.info("Sentinel MCP Server stopped")
 
 
@@ -102,7 +116,7 @@ async def diagnose(request: DiagnoseRequest):
         bottleneck = await agent.diagnose()
         
         # Store result
-        await db.save_bottleneck(request.agent_id, bottleneck)
+        db.save_bottleneck(request.agent_id, bottleneck)
         
         logger.info(f"Diagnosis complete: {bottleneck}")
         
@@ -142,7 +156,7 @@ async def execute(request: ExecuteRequest):
         result = await agent.execute(request.action)
         
         # Log outcome
-        await db.log_action(request.agent_id, request.action, result)
+        db.log_action(request.agent_id, request.action, result)
         
         logger.info(f"Execution complete: {result}")
         
@@ -169,16 +183,16 @@ async def orchestrate():
         logger.info("Starting orchestration cycle")
         
         # Collect all agent reports
-        reports = await db.get_all_agent_reports()
+        reports = db.get_all_agent_reports()
         
         # Synthesize via orchestrator
         plan = await orchestrator.synthesize(reports)
         
         # Update Notion dashboard
-        await notion.update_dashboard(plan)
+        # await notion.update_dashboard(plan)
         
         # Store in database
-        await db.save_orchestration_result(plan)
+        db.save_orchestration_result(plan)
         
         logger.info(f"Orchestration complete: {plan}")
         
@@ -197,7 +211,7 @@ async def orchestrate():
 async def get_state(request: GetStateRequest):
     """Get current state of an agent"""
     try:
-        state = await db.get_agent_state(request.agent_id)
+        state = db.get_agent_state(request.agent_id)
         
         return {
             "agent_id": request.agent_id,
@@ -214,11 +228,23 @@ async def get_state(request: GetStateRequest):
 async def list_agents():
     """List all registered agents"""
     try:
-        agents = await db.get_all_agents()
+        agents = db.get_all_agents()
         return {"agents": agents}
     
     except Exception as e:
         logger.error(f"Failed to list agents: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/reports")
+async def get_reports():
+    """Get latest agent reports including bottlenecks"""
+    try:
+        reports = db.get_all_agent_reports()
+        return {"reports": reports}
+    
+    except Exception as e:
+        logger.error(f"Failed to get reports: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -230,6 +256,15 @@ async def _get_or_create_agent(
     project: Optional[str] = None
 ) -> SubAgent:
     """Get agent from registry or create new instance"""
+    from src.agents.github_agent import GitHubTriageAgent
+
+    if domain == "github-triage":
+        return GitHubTriageAgent(agent_id, domain)
+        
+    if domain == "ai-systems-research":
+        from src.agents.research_agent import ResearchAnalystAgent
+        return ResearchAnalystAgent(agent_id, domain)
+        
     # In a real implementation, would load agent class dynamically
     # For now, returns a basic SubAgent
     agent = SubAgent(agent_id, domain or "default")
