@@ -19,20 +19,22 @@ class OrchestratorAgent(BaseAgent):
     Orchestration agent that coordinates all sub-agents.
     Runs weekly to synthesize findings and route priorities.
     """
-    
+
     def __init__(self):
         super().__init__("orchestrator", agent_type="orchestrator")
         self.last_synthesis = None
         self.current_plan = None
-    
+
     async def run(self) -> Dict[str, Any]:
         """Run weekly orchestration"""
         logger.info("Starting orchestration cycle")
         # Implementation in subclass
         return {"status": "not_implemented"}
-    
+
     @instrument_agent_method("orchestrator.synthesize")
-    async def synthesize(self, sub_agent_reports: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def synthesize(
+        self, sub_agent_reports: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         Synthesize all sub-agent reports into weekly priorities using Claude API.
 
@@ -59,7 +61,7 @@ class OrchestratorAgent(BaseAgent):
                     "priority_ranking": [],
                     "resource_allocation": {},
                     "weekly_plan": [],
-                    "cross_domain_conflicts": []
+                    "cross_domain_conflicts": [],
                 }
 
             # Rank by impact (preliminary ranking)
@@ -101,7 +103,7 @@ Respond with a JSON object (and ONLY JSON, no other text) with this structure:
             reports_with_context = []
             for report in ranked:
                 # Add agent_id and domain if not present
-                if 'agent_id' not in report and hasattr(self, '_report_sources'):
+                if "agent_id" not in report and hasattr(self, "_report_sources"):
                     # This would be set by the caller
                     pass
                 reports_with_context.append(report)
@@ -120,9 +122,7 @@ Return your synthesis as a JSON object following the specified structure."""
 
             # Call Claude API for intelligent synthesis
             response_text = await self.call_claude(
-                system_prompt=system_prompt,
-                user_message=user_message,
-                max_tokens=2000
+                system_prompt=system_prompt, user_message=user_message, max_tokens=2000
             )
 
             # Parse JSON response
@@ -130,10 +130,17 @@ Return your synthesis as a JSON object following the specified structure."""
                 plan = json.loads(response_text)
 
                 # Ensure required fields exist
-                required_fields = ["top_bottleneck", "priority_ranking", "cross_domain_conflicts", "weekly_plan"]
+                required_fields = [
+                    "top_bottleneck",
+                    "priority_ranking",
+                    "cross_domain_conflicts",
+                    "weekly_plan",
+                ]
                 for field in required_fields:
                     if field not in plan:
-                        logger.warning(f"Missing field '{field}' in orchestrator response")
+                        logger.warning(
+                            f"Missing field '{field}' in orchestrator response"
+                        )
                         plan[field] = {} if field == "top_bottleneck" else []
 
                 # Add metadata
@@ -143,17 +150,23 @@ Return your synthesis as a JSON object following the specified structure."""
                 self.current_plan = plan
                 self.last_synthesis = datetime.now().isoformat()
 
-                await self.log_decision({
-                    "type": "orchestration",
-                    "reports_synthesized": len(sub_agent_reports),
-                    "top_bottleneck": plan.get("top_bottleneck", {}).get("description", "None"),
-                    "weekly_plan_items": len(plan.get("weekly_plan", []))
-                })
+                await self.log_decision(
+                    {
+                        "type": "orchestration",
+                        "reports_synthesized": len(sub_agent_reports),
+                        "top_bottleneck": plan.get("top_bottleneck", {}).get(
+                            "description", "None"
+                        ),
+                        "weekly_plan_items": len(plan.get("weekly_plan", [])),
+                    }
+                )
 
                 return plan
 
             except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse orchestrator Claude response as JSON: {e}")
+                logger.error(
+                    f"Failed to parse orchestrator Claude response as JSON: {e}"
+                )
                 logger.error(f"Response text: {response_text}")
 
                 # Fallback to simple ranking
@@ -163,23 +176,25 @@ Return your synthesis as a JSON object following the specified structure."""
             logger.error(f"Orchestrator synthesis failed: {e}", exc_info=True)
             await self.log_error(e, {"reports": len(sub_agent_reports)})
             raise
-    
+
     def _rank_by_impact(self, reports: List[Dict]) -> List[Dict]:
         """Rank bottlenecks by impact score"""
         return sorted(
             reports,
             key=lambda x: x.get("impact_score", 0) * x.get("confidence", 0.5),
-            reverse=True
+            reverse=True,
         )
-    
+
     def _find_conflicts(self, ranked_reports: List[Dict]) -> List[Dict]:
         """Identify resource conflicts between agents"""
         conflicts = []
         # Implementation would detect when multiple agents
         # need the same resources
         return conflicts
-    
-    def _generate_plan(self, ranked: List[Dict], conflicts: List[Dict]) -> Dict[str, Any]:
+
+    def _generate_plan(
+        self, ranked: List[Dict], conflicts: List[Dict]
+    ) -> Dict[str, Any]:
         """Generate weekly action plan"""
         plan = {
             "week": datetime.now().isoformat(),
@@ -187,6 +202,6 @@ Return your synthesis as a JSON object following the specified structure."""
             "priority_ranking": ranked,
             "resource_allocation": {},
             "weekly_plan": [],
-            "cross_domain_conflicts": conflicts
+            "cross_domain_conflicts": conflicts,
         }
         return plan

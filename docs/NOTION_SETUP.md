@@ -1,8 +1,11 @@
 # Notion Integration Setup
 
-## Overview
+> [!CAUTION]
+> **DEPRECATED:** As of December 2025, the Notion Integration has been deprecated in favor of the **Sentinel Command Center (Next.js Dashboard)**.
+> This documentation is kept for historical traceability. The Notion integration requires a paid workspace for custom integrations, whereas the new GUI runs locally and provides real-time control.
 
-Sentinel integrates with your Notion workspace to provide a human-readable dashboard of agent activities, bottlenecks, and priorities.
+## Overview
+...
 
 ## Step 1: Create Notion Integration
 

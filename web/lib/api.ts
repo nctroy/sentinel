@@ -40,6 +40,28 @@ export async function runOrchestration() {
   return response.json();
 }
 
+export async function fetchSecuritySummary() {
+  const response = await fetch(`${API_BASE_URL}/security/summary`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch security summary");
+  }
+  return response.json();
+}
+
+export async function fetchVulnerabilities(source?: string, severity?: string) {
+  let url = `${API_BASE_URL}/security/vulnerabilities`;
+  const params = new URLSearchParams();
+  if (source) params.append("source", source);
+  if (severity) params.append("severity", severity);
+  if (params.toString()) url += `?${params.toString()}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Failed to fetch vulnerabilities");
+  }
+  return response.json();
+}
+
 export async function fetchAgentState(agentId: string) {
   const response = await fetch(`${API_BASE_URL}/state`, {
     method: "POST",

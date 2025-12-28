@@ -9,7 +9,7 @@ from src.observability.telemetry import (
     instrument_agent_method,
     instrument_claude_call,
     add_span_attributes,
-    record_metric
+    record_metric,
 )
 
 __all__ = [
@@ -18,5 +18,5 @@ __all__ = [
     "instrument_agent_method",
     "instrument_claude_call",
     "add_span_attributes",
-    "record_metric"
+    "record_metric",
 ]

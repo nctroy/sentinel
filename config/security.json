@@ -1,0 +1,17 @@
+{
+  "project": "security-posture",
+  "description": "Unified security monitoring and posture management",
+  "sub_agents": [
+    {
+      "agent_id": "security-aggregator",
+      "name": "Security Aggregator",
+      "domain": "security",
+      "responsibilities": [
+        "Aggregate findings from ESLint, ZAP, Snyk",
+        "Normalize security vulnerabilities",
+        "Track resolution status"
+      ],
+      "autonomy_level": "diagnostic"
+    }
+  ]
+}

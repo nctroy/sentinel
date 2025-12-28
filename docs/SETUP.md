@@ -6,23 +6,22 @@
 
 - Python 3.10+
 - PostgreSQL 12+ (local or via Docker)
-- Notion workspace access
+- Notion workspace access (Optional)
 - Claude API key
 - GitHub account
+- Node.js 18+ (for GUI Dashboard)
 
 ### 2. Environment Setup
-
-```bash
-# Clone repository
-git clone https://github.com/nctroy/sentinel.git
-cd sentinel
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
+...
 # Install dependencies
 pip install -r requirements.txt
+```
+
+### 3. Command Center (GUI) Setup
+
+```bash
+cd web
+npm install
 ```
 
 ### 3. PostgreSQL Setup
@@ -105,12 +104,11 @@ TL;DR:
 
 ### 7. Verify Setup
 
-```bash
-# Test database connection
-python -c "from src.storage.postgres_client import PostgresClient; print('✓ DB connected')"
-
-# Test Notion connection
+# Test Notion connection (Deprecated)
 python -c "from src.storage.notion_client import NotionClient; print('✓ Notion connected')"
+
+# Start Command Center (GUI)
+cd web && npm run dev
 
 # Run first diagnostic
 python -m src.cli.cli run-cycle --mode diagnostic
@@ -120,45 +118,26 @@ python -m src.cli.cli run-cycle --mode diagnostic
 
 ### Command Line
 
-```bash
-# Show help
-python -m src.cli.cli --help
+...
 
-# Run diagnostic cycle (read-only)
-python -m src.cli.cli run-cycle --mode diagnostic
-
-# Run with verbose logging
-python -m src.cli.cli run-cycle --mode diagnostic --verbose
-
-# Initialize a new project
-python -m src.cli.cli init-project --config config/podcast-example.json
-
-# List agents
-python -m src.cli.cli list-agents
-
-# View agent state
-python -m src.cli.cli show-agent --agent-id job-search-001
-```
-
-### MCP Server
+### Command Center (GUI)
 
 ```bash
-# Start MCP server
-python -m src.mcp_server.sentinel_server
-
-# Now Claude can call agents via MCP
-```
-
-### Development Server
-
-```bash
-# Start FastAPI server
+# Terminal 1: Start Backend
+source venv/bin/activate
 uvicorn src.mcp_server.sentinel_server:app --reload --port 8000
 
-# API docs available at http://localhost:8000/docs
+# Terminal 2: Start GUI
+cd web
+npm run dev
 ```
 
-## Configuration
+### Notion Integration (Deprecated)
+
+> [!NOTE]
+> The Notion integration is deprecated in favor of the custom Next.js Dashboard.
+
+
 
 ### Project Configuration
 

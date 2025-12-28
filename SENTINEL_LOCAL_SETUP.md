@@ -386,15 +386,17 @@ Once you have everything running, you've built:
 ```
 Your Local Machine
   ├── Sentinel Code (Python)
-  │   ├── MCP Server
+  │   ├── FastAPI Server (Backend)
   │   ├── Sub-Agents
   │   └── Orchestrator
   │
   ├── PostgreSQL (Local or Docker)
   │   └── Agent State, Decisions, Audit Logs
   │
-  └── Notion (superonyx workspace)
-      └── Human-Readable Dashboard
+  └── Command Center (Next.js/React)
+      └── Real-time Dashboard GUI
+
+All three components working together = **complete autonomous agent system**.
 ```
 
 All three components working together = **complete autonomous agent system**.

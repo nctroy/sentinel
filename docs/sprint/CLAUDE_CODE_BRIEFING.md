@@ -1,9 +1,9 @@
 # CLAUDE CODE BRIEFING: Sentinel Foundation Sprint (Dec 27-31, 2025)
 
-**Project:** Sentinel - Autonomous Multi-Agent Orchestration System  
-**Owner:** Troy Neff (@nctroy)  
-**Repository:** https://github.com/nctroy/sentinel  
-**Timeline:** 5-day sprint before 30-in-30 challenge (Jan 1-30, 2026)  
+**Project:** Sentinel - Autonomous Multi-Agent Orchestration System
+**Owner:** Troy Neff (@nctroy)
+**Repository:** https://github.com/nctroy/sentinel
+**Timeline:** 5-day sprint before 30-in-30 challenge (Jan 1-30, 2026)
 **Primary Goal:** Production-ready deployment with observability for portfolio demonstration
 
 ---
@@ -12,7 +12,7 @@
 
 Sentinel is an autonomous multi-agent orchestration system that identifies and resolves bottlenecks across multiple business domains (job search, AI literacy business, photography, 30-in-30 challenge projects). The system uses a Chief of Staff (CoS) orchestrator with domain-specific sub-agents operating under graduated autonomy.
 
-**Current State:** 
+**Current State:**
 - ✅ Solid Python foundation (SQLAlchemy ORM, CLI, agent framework)
 - ✅ PostgreSQL schema with 6 tables
 - ✅ Graduated autonomy model implemented
@@ -37,11 +37,11 @@ Sentinel is an autonomous multi-agent orchestration system that identifies and r
 
 ### Risk Mitigation Framework (6 Critical Risks):
 
-**R-001: Skill Drift & Dependencies** (P1)  
-**R-002: Context Loss in Upgrades** (P2)  
-**R-003: Compounding Recommendations** (P2)  
-**R-004: Trust Calibration Failures** (P1) - *Already partially addressed with confidence thresholds*  
-**R-005: Failure Detection & Recovery** (P1)  
+**R-001: Skill Drift & Dependencies** (P1)
+**R-002: Context Loss in Upgrades** (P2)
+**R-003: Compounding Recommendations** (P2)
+**R-004: Trust Calibration Failures** (P1) - *Already partially addressed with confidence thresholds*
+**R-005: Failure Detection & Recovery** (P1)
 **R-006: Security & Attack Surface** (P1)
 
 ---
@@ -135,7 +135,7 @@ opentelemetry-exporter-otlp==1.22.0
 # - SigNoz OTel Collector
 # - SigNoz Query Service
 # - SigNoz Frontend
-# 
+#
 # Reference: https://signoz.io/docs/install/docker/
 ```
 
@@ -219,16 +219,16 @@ opentelemetry-exporter-otlp==1.22.0
 **SQL Queries to Create:**
 ```sql
 -- Job search funnel
-SELECT 
+SELECT
     status,
     COUNT(*) as count,
     AVG(confidence) as avg_confidence
-FROM bottlenecks 
+FROM bottlenecks
 WHERE agent_id LIKE 'job-%'
 GROUP BY status;
 
 -- Agent productivity
-SELECT 
+SELECT
     agent_id,
     COUNT(DISTINCT DATE(identified_at)) as active_days,
     COUNT(*) as bottlenecks_found,
@@ -339,7 +339,7 @@ for interview talking points.
 
 ## Interview Narrative
 
-"I built Sentinel as an autonomous multi-agent orchestration system 
+"I built Sentinel as an autonomous multi-agent orchestration system
 where I maintain architectural control without micromanaging execution..."
 
 ## Technical Highlights
@@ -468,24 +468,24 @@ class BaseAgent(ABC):
         self.claude_client = anthropic.Anthropic(
             api_key=os.getenv("ANTHROPIC_API_KEY")
         )
-    
+
     async def call_claude(self, system_prompt: str, user_message: str) -> str:
         """Make Claude API call with observability"""
         with tracer.start_as_current_span("claude_api_call") as span:
             span.set_attribute("agent.id", self.agent_id)
             span.set_attribute("prompt.length", len(user_message))
-            
+
             response = self.claude_client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=2000,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_message}]
             )
-            
+
             # Track usage
             span.set_attribute("tokens.input", response.usage.input_tokens)
             span.set_attribute("tokens.output", response.usage.output_tokens)
-            
+
             return response.content[0].text
 ```
 
@@ -502,16 +502,16 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 def setup_telemetry():
     """Initialize OpenTelemetry with SigNoz backend"""
     provider = TracerProvider()
-    
+
     # SigNoz OTLP endpoint
     otlp_exporter = OTLPSpanExporter(
         endpoint="http://localhost:4317",
         insecure=True
     )
-    
+
     provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
     trace.set_tracer_provider(provider)
-    
+
     return trace.get_tracer(__name__)
 
 # Global tracer
@@ -560,7 +560,7 @@ async def test_research_agent_real_diagnosis():
     """Test ResearchAnalystAgent with real Claude API"""
     agent = ResearchAnalystAgent("research-01", "ai-research")
     result = await agent.diagnose()
-    
+
     assert "description" in result
     assert 0 <= result["confidence"] <= 1.0
     assert 0 <= result["impact_score"] <= 10

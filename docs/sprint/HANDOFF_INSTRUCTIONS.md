@@ -57,7 +57,7 @@ cat docs/sprint/CLAUDE_CODE_BRIEFING.md
 **Copy/paste this into Claude Code:**
 
 ```
-I need you to execute a 5-day foundation sprint for Sentinel, my autonomous 
+I need you to execute a 5-day foundation sprint for Sentinel, my autonomous
 multi-agent orchestration system. I've prepared comprehensive briefing materials.
 
 Primary briefing: docs/sprint/CLAUDE_CODE_BRIEFING.md
@@ -121,12 +121,12 @@ If Claude Code supports file upload:
 
 ## What Makes This Handoff Clean
 
-✅ **Single package** - One tar.gz with everything  
-✅ **Self-contained** - All context in CLAUDE_CODE_BRIEFING.md  
-✅ **Executable** - Clear day-by-day action items  
-✅ **Validated** - Success criteria and checkpoints  
-✅ **Safe** - Explicit "don't rebuild" guidance  
-✅ **Documented** - Creates ADRs as it goes  
+✅ **Single package** - One tar.gz with everything
+✅ **Self-contained** - All context in CLAUDE_CODE_BRIEFING.md
+✅ **Executable** - Clear day-by-day action items
+✅ **Validated** - Success criteria and checkpoints
+✅ **Safe** - Explicit "don't rebuild" guidance
+✅ **Documented** - Creates ADRs as it goes
 
 ---
 
@@ -185,11 +185,11 @@ sentinel/
 
 By end of Day 5, you should be able to:
 
-✅ Run `docker-compose up -d` and see 8+ services running  
-✅ Visit https://sentinel.troyneff.com/ops and see live agent metrics  
-✅ Visit https://sentinel.troyneff.com/executive and see job search funnel  
-✅ Run `sentinel run-cycle --mode diagnostic` and see real Claude API calls  
-✅ Show interviewers a production multi-agent system with enterprise observability  
+✅ Run `docker-compose up -d` and see 8+ services running
+✅ Visit https://sentinel.troyneff.com/ops and see live agent metrics
+✅ Visit https://sentinel.troyneff.com/executive and see job search funnel
+✅ Run `sentinel run-cycle --mode diagnostic` and see real Claude API calls
+✅ Show interviewers a production multi-agent system with enterprise observability
 
 **That's the bar. Everything to hit it is in the briefing.**
 

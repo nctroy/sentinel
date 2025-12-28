@@ -39,12 +39,12 @@ class BaseAgent(ABC):
 
         # Get OpenTelemetry tracer
         self.tracer = get_tracer()
-    
+
     @abstractmethod
     async def run(self) -> Dict[str, Any]:
         """Main execution method"""
         pass
-    
+
     async def log_decision(self, decision: Dict[str, Any]) -> None:
         """Log a decision made by this agent"""
         log_entry = {
@@ -52,18 +52,18 @@ class BaseAgent(ABC):
             "timestamp": datetime.now().isoformat(),
             "type": decision.get("type"),
             "reasoning": decision.get("reasoning", ""),
-            "confidence": decision.get("confidence", 0.0)
+            "confidence": decision.get("confidence", 0.0),
         }
         logger.info(f"Decision: {json.dumps(log_entry)}")
-    
+
     async def log_error(self, error: Exception, context: Dict[str, Any] = None) -> None:
         """Log an error"""
         logger.error(
             f"Agent {self.agent_id} error: {str(error)}",
             extra={"context": context or {}},
-            exc_info=True
+            exc_info=True,
         )
-    
+
     def assess_confidence(self, data: Dict[str, Any]) -> float:
         """
         Assess confidence in a decision.
@@ -72,7 +72,7 @@ class BaseAgent(ABC):
         if "confidence" in data:
             return data["confidence"]
         return 0.5
-    
+
     def can_execute(self, action: Dict[str, Any]) -> bool:
         """Check if action meets confidence threshold"""
         confidence = action.get("confidence", 0.0)
@@ -84,7 +84,7 @@ class BaseAgent(ABC):
         system_prompt: str,
         user_message: str,
         model: str = "claude-sonnet-4-20250514",
-        max_tokens: int = 2000
+        max_tokens: int = 2000,
     ) -> str:
         """
         Make a Claude API call with observability instrumentation.
@@ -102,7 +102,9 @@ class BaseAgent(ABC):
             Exception: If Claude API client is not initialized or API call fails
         """
         if not self.claude_client:
-            raise Exception(f"Claude API client not initialized for agent {self.agent_id}")
+            raise Exception(
+                f"Claude API client not initialized for agent {self.agent_id}"
+            )
 
         with self.tracer.start_as_current_span("claude_api_call") as span:
             # Add span attributes
@@ -118,13 +120,16 @@ class BaseAgent(ABC):
                     model=model,
                     max_tokens=max_tokens,
                     system=system_prompt,
-                    messages=[{"role": "user", "content": user_message}]
+                    messages=[{"role": "user", "content": user_message}],
                 )
 
                 # Track token usage
                 span.set_attribute("tokens.input", response.usage.input_tokens)
                 span.set_attribute("tokens.output", response.usage.output_tokens)
-                span.set_attribute("tokens.total", response.usage.input_tokens + response.usage.output_tokens)
+                span.set_attribute(
+                    "tokens.total",
+                    response.usage.input_tokens + response.usage.output_tokens,
+                )
 
                 # Extract and return text content
                 response_text = response.content[0].text
@@ -148,6 +153,6 @@ class BaseAgent(ABC):
 
                 logger.error(
                     f"Claude API call failed for agent {self.agent_id}: {e}",
-                    exc_info=True
+                    exc_info=True,
                 )
                 raise

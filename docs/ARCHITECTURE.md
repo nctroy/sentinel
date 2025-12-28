@@ -82,12 +82,20 @@ The orchestrator:
 - `actions` — Executed actions with outcomes
 - `audit_log` — Complete transaction log
 
-#### Notion
-- Human-readable dashboard
-- Weekly priority view
-- Agent status displays
-- Decision history
-- Progress tracking
+#### Sentinel Command Center (GUI)
+- Real-time human-readable dashboard
+- Built with Next.js, React, and ShadcnUI
+- Direct connection to FastAPI/PostgreSQL backend
+- Control center for manual agent triggers and approvals
+- Actionable security and bottleneck feed
+
+**Schema:**
+- `agents` — Sub-agent definitions
+- `states` — Current state snapshot per agent
+- `bottlenecks` — Identified bottlenecks
+- `decisions` — Decisions made by orchestrator
+- `actions` — Executed actions with outcomes
+- `audit_log` — Complete transaction log
 
 ## Agent Communication
 
@@ -124,7 +132,8 @@ Agents communicate via **MCP (Model Context Protocol)**:
   ├─ Queries PostgreSQL for current state
   ├─ Runs diagnosis: "What's blocking progress?"
   ├─ Returns bottleneck + recommended actions
-  ├─ Writes to PostgreSQL + Notion
+  ├─ Writes to PostgreSQL
+  ├─ Real-time update to Command Center (GUI)
   └─ Sleeps
   
   ├─ AI Business Agent (same)
@@ -142,7 +151,7 @@ Friday 5:00 PM
   ├─ Identifies cross-domain conflicts
   ├─ Ranks by impact score
   ├─ Generates weekly plan
-  ├─ Updates Notion dashboard
+  ├─ Updates Command Center (GUI)
   ├─ Presents recommendations to you
   └─ Awaits approval/modification
 ```
@@ -181,7 +190,7 @@ External Data (APIs, emails, calendar)
          ├──→ Orchestrator (Synthesize)
          │         │
          │         ▼
-         │    Notion Dashboard (Human view)
+         │    Command Center GUI (Human view)
          │
          └──→ You (Strategic decisions)
 ```

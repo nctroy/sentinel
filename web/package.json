@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:sarif": "eslint . --format @microsoft/eslint-formatter-sarif --output-file ../security-reports/eslint-results.sarif || true"
   },
   "dependencies": {
     "@radix-ui/react-progress": "^1.1.8",
@@ -22,6 +23,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

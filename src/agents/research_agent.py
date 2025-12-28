@@ -8,12 +8,13 @@ from src.observability.telemetry import instrument_agent_method
 
 logger = logging.getLogger(__name__)
 
+
 class ResearchAnalystAgent(SubAgent):
     """
     Research & Intelligence Agent.
     Monitors domains, filters noise, and surfaces high-signal items.
     """
-    
+
     def __init__(self, agent_id: str, domain: str):
         super().__init__(agent_id, domain)
         self.sources = ["arXiv", "TechCrunch", "GitHub Trending", "Hacker News"]
@@ -70,9 +71,7 @@ Return your analysis as a JSON object following the specified structure."""
         try:
             # Call Claude API
             response_text = await self.call_claude(
-                system_prompt=system_prompt,
-                user_message=user_message,
-                max_tokens=1000
+                system_prompt=system_prompt, user_message=user_message, max_tokens=1000
             )
 
             # Parse JSON response
@@ -80,25 +79,45 @@ Return your analysis as a JSON object following the specified structure."""
                 bottleneck = json.loads(response_text)
 
                 # Validate required fields
-                required_fields = ["description", "confidence", "impact_score", "blocking", "recommended_action", "reasoning"]
+                required_fields = [
+                    "description",
+                    "confidence",
+                    "impact_score",
+                    "blocking",
+                    "recommended_action",
+                    "reasoning",
+                ]
                 for field in required_fields:
                     if field not in bottleneck:
-                        logger.warning(f"Missing field '{field}' in Claude response, using default")
-                        bottleneck[field] = "" if field in ["description", "recommended_action", "reasoning"] else (
-                            0.0 if field in ["confidence", "impact_score"] else []
+                        logger.warning(
+                            f"Missing field '{field}' in Claude response, using default"
+                        )
+                        bottleneck[field] = (
+                            ""
+                            if field
+                            in ["description", "recommended_action", "reasoning"]
+                            else (
+                                0.0 if field in ["confidence", "impact_score"] else []
+                            )
                         )
 
                 # Ensure confidence and impact_score are floats in valid ranges
-                bottleneck["confidence"] = max(0.0, min(1.0, float(bottleneck["confidence"])))
-                bottleneck["impact_score"] = max(0.0, min(10.0, float(bottleneck["impact_score"])))
+                bottleneck["confidence"] = max(
+                    0.0, min(1.0, float(bottleneck["confidence"]))
+                )
+                bottleneck["impact_score"] = max(
+                    0.0, min(10.0, float(bottleneck["impact_score"]))
+                )
 
                 # Log the scan
-                await self.log_decision({
-                    "type": "intelligence_scan",
-                    "sources": self.sources,
-                    "finding": bottleneck['description'],
-                    "confidence": bottleneck['confidence']
-                })
+                await self.log_decision(
+                    {
+                        "type": "intelligence_scan",
+                        "sources": self.sources,
+                        "finding": bottleneck["description"],
+                        "confidence": bottleneck["confidence"],
+                    }
+                )
 
                 return bottleneck
 
@@ -113,7 +132,7 @@ Return your analysis as a JSON object following the specified structure."""
                     "impact_score": 0.0,
                     "blocking": [],
                     "recommended_action": "Retry analysis",
-                    "reasoning": "JSON parsing error"
+                    "reasoning": "JSON parsing error",
                 }
 
         except Exception as e:
@@ -127,7 +146,7 @@ Return your analysis as a JSON object following the specified structure."""
                 "impact_score": 0.0,
                 "blocking": [],
                 "recommended_action": "Check agent logs and retry",
-                "reasoning": "Exception during diagnosis"
+                "reasoning": "Exception during diagnosis",
             }
 
     async def execute(self, action: Dict[str, Any]) -> Dict[str, Any]:
@@ -135,12 +154,15 @@ Return your analysis as a JSON object following the specified structure."""
         Execute research actions.
         """
         action_type = action.get("type")
-        
+
         if action_type == "summarize_paper":
             return {
-                "status": "success", 
+                "status": "success",
                 "summary": "Paper demonstrates that chain-of-thought prompting...",
-                "key_takeaways": ["Method A beats Method B", "Latency impacts reasoning"]
+                "key_takeaways": [
+                    "Method A beats Method B",
+                    "Latency impacts reasoning",
+                ],
             }
-            
+
         return {"status": "failed", "message": f"Unknown action type: {action_type}"}

@@ -28,7 +28,7 @@ load_dotenv()
 # Setup logging
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Sentinel MCP Server",
     description="Multi-agent orchestration via Model Context Protocol",
-    version="0.1.0"
+    version="0.1.0",
 )
 
 # Configure CORS
@@ -56,6 +56,7 @@ orchestrator = None  # Lazy loaded
 
 # ==================== Models ====================
 
+
 class DiagnoseRequest(BaseModel):
     agent_id: str
     domain: str
@@ -72,6 +73,7 @@ class GetStateRequest(BaseModel):
 
 
 # ==================== Endpoints ====================
+
 
 @app.on_event("startup")
 async def startup():
@@ -99,33 +101,31 @@ async def health():
 async def diagnose(request: DiagnoseRequest):
     """
     Run diagnosis for a sub-agent.
-    
+
     Returns the bottleneck identified by the agent.
     """
     try:
         logger.info(f"Diagnosing agent: {request.agent_id}")
-        
+
         # Get or create agent
         agent = await _get_or_create_agent(
-            request.agent_id,
-            request.domain,
-            request.project
+            request.agent_id, request.domain, request.project
         )
-        
+
         # Run diagnosis
         bottleneck = await agent.diagnose()
-        
+
         # Store result
         db.save_bottleneck(request.agent_id, bottleneck)
-        
+
         logger.info(f"Diagnosis complete: {bottleneck}")
-        
+
         return {
             "agent_id": request.agent_id,
             "bottleneck": bottleneck,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-    
+
     except Exception as e:
         logger.error(f"Diagnosis failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -135,38 +135,38 @@ async def diagnose(request: DiagnoseRequest):
 async def execute(request: ExecuteRequest):
     """
     Execute action for a sub-agent.
-    
+
     Respects autonomy constraints and guardrails.
     """
     try:
         logger.info(f"Executing action for {request.agent_id}")
-        
+
         agent = await _get_or_create_agent(request.agent_id)
-        
+
         # Check autonomy
         if not agent.can_execute(request.action):
             logger.warning(f"Action blocked by guardrails: {request.action}")
             return {
                 "agent_id": request.agent_id,
                 "status": "pending_approval",
-                "action": request.action
+                "action": request.action,
             }
-        
+
         # Execute
         result = await agent.execute(request.action)
-        
+
         # Log outcome
         db.log_action(request.agent_id, request.action, result)
-        
+
         logger.info(f"Execution complete: {result}")
-        
+
         return {
             "agent_id": request.agent_id,
             "status": "success",
             "result": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-    
+
     except Exception as e:
         logger.error(f"Execution failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -177,21 +177,36 @@ async def orchestrate():
     """
     Run orchestration cycle.
     
-    Synthesizes all sub-agent reports and generates priorities.
+    1. Triggers all registered agents to run diagnostics.
+    2. Synthesizes all sub-agent reports.
+    3. Generates priorities.
     """
     try:
         logger.info("Starting orchestration cycle")
         
-        # Collect all agent reports
+        # 1. Get all agents
+        agents = db.get_all_agents()
+        
+        # 2. Run diagnostics for each agent
+        for agent_info in agents:
+            try:
+                agent = await _get_or_create_agent(
+                    agent_info["agent_id"], 
+                    agent_info["domain"]
+                )
+                bottleneck = await agent.diagnose()
+                db.save_bottleneck(agent_info["agent_id"], bottleneck)
+                logger.info(f"Diagnosed {agent_info['agent_id']}")
+            except Exception as e:
+                logger.error(f"Failed to diagnose {agent_info['agent_id']}: {e}")
+
+        # 3. Collect all agent reports
         reports = db.get_all_agent_reports()
         
-        # Synthesize via orchestrator
+        # 4. Synthesize via orchestrator
         plan = await orchestrator.synthesize(reports)
         
-        # Update Notion dashboard
-        # await notion.update_dashboard(plan)
-        
-        # Store in database
+        # 5. Store in database
         db.save_orchestration_result(plan)
         
         logger.info(f"Orchestration complete: {plan}")
@@ -201,7 +216,7 @@ async def orchestrate():
             "plan": plan,
             "timestamp": datetime.now().isoformat()
         }
-    
+
     except Exception as e:
         logger.error(f"Orchestration failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -212,13 +227,13 @@ async def get_state(request: GetStateRequest):
     """Get current state of an agent"""
     try:
         state = db.get_agent_state(request.agent_id)
-        
+
         return {
             "agent_id": request.agent_id,
             "state": state,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-    
+
     except Exception as e:
         logger.error(f"Failed to get state: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -230,7 +245,7 @@ async def list_agents():
     try:
         agents = db.get_all_agents()
         return {"agents": agents}
-    
+
     except Exception as e:
         logger.error(f"Failed to list agents: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -242,29 +257,56 @@ async def get_reports():
     try:
         reports = db.get_all_agent_reports()
         return {"reports": reports}
-    
+
     except Exception as e:
         logger.error(f"Failed to get reports: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/security/summary")
+async def get_security_summary():
+    """Get aggregated security metrics"""
+    try:
+        summary = db.get_security_summary()
+        return summary
+    except Exception as e:
+        logger.error(f"Failed to get security summary: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/security/vulnerabilities")
+async def get_security_vulnerabilities(source: Optional[str] = None, severity: Optional[str] = None):
+    """Get list of security findings"""
+    try:
+        vulns = db.get_vulnerabilities(source=source, severity=severity)
+        return {"vulnerabilities": vulns}
+    except Exception as e:
+        logger.error(f"Failed to get vulnerabilities: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ==================== Helpers ====================
 
+
 async def _get_or_create_agent(
-    agent_id: str,
-    domain: Optional[str] = None,
-    project: Optional[str] = None
+    agent_id: str, domain: Optional[str] = None, project: Optional[str] = None
 ) -> SubAgent:
     """Get agent from registry or create new instance"""
     from src.agents.github_agent import GitHubTriageAgent
 
     if domain == "github-triage":
         return GitHubTriageAgent(agent_id, domain)
-        
+
     if domain == "ai-systems-research":
         from src.agents.research_agent import ResearchAnalystAgent
+
         return ResearchAnalystAgent(agent_id, domain)
-        
+
+    if domain == "security":
+        from src.agents.security_aggregator import SecurityAggregatorAgent
+
+        return SecurityAggregatorAgent()
+
     # In a real implementation, would load agent class dynamically
     # For now, returns a basic SubAgent
     agent = SubAgent(agent_id, domain or "default")
@@ -278,5 +320,5 @@ if __name__ == "__main__":
         app,
         host=os.getenv("SERVER_HOST", "127.0.0.1"),
         port=int(os.getenv("SERVER_PORT", "8000")),
-        log_level=os.getenv("LOG_LEVEL", "info").lower()
+        log_level=os.getenv("LOG_LEVEL", "info").lower(),
     )

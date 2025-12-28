@@ -27,8 +27,8 @@ export function BottleneckList({ reports }: { reports: Report[] }) {
   return (
     <div className="space-y-4">
       {activeBottlenecks.map((report) => (
-        <div 
-          key={report.agent_id} 
+        <div
+          key={report.agent_id}
           className="flex items-start gap-4 p-4 rounded-lg bg-yellow-50 border border-yellow-200"
         >
           <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 shrink-0" />

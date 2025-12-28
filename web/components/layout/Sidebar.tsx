@@ -8,33 +8,60 @@ export function Sidebar() {
         <Activity className="text-blue-500" />
         <h1 className="font-bold text-xl tracking-tight">SENTINEL</h1>
       </div>
-      
+
       <nav className="flex-1 p-4 space-y-2">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors"
         >
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
         </Link>
+
+                <Link 
+
+                  href="/agents" 
+
+                  className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors"
+
+                >
+
+                  <Users size={20} />
+
+                  <span>Agents</span>
+
+                </Link>
+
+                
+
+                <Link 
+
+                  href="/security" 
+
+                  className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors"
+
+                >
+
+                  <Activity size={20} />
+
+                  <span>Security</span>
+
+                </Link>
+
+                
+
+                <Link 
+
+                  href="/settings" 
+
         
-        <Link 
-          href="/agents" 
-          className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors"
-        >
-          <Users size={20} />
-          <span>Agents</span>
-        </Link>
-        
-        <Link 
-          href="/settings" 
           className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors"
         >
           <Settings size={20} />
           <span>Settings</span>
         </Link>
       </nav>
-      
+
       <div className="p-4 border-t border-slate-800">
         <div className="flex items-center gap-3 px-4 py-2">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

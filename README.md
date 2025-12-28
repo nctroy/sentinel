@@ -41,10 +41,10 @@ Sentinel helps you manage complex multi-domain workflows through intelligent AI 
 │       │                 │                │                      │
 │       ▼                 ▼                ▼                      │
 │  ┌─────────┐      ┌──────────┐    ┌──────────┐                │
-│  │ SigNoz  │      │ Superset │    │ FastAPI  │                │
-│  │  Ops    │      │Executive │    │Sentinel  │                │
-│  │Dashboard│      │Dashboard │    │   API    │                │
-│  │ :3301   │      │  :8088   │    │  :8000   │                │
+│  │ SigNoz  │      │ Superset │    │ Next.js  │                │
+│  │  Ops    │      │Executive │    │Dashboard │                │
+│  │Dashboard│      │Dashboard │    │  :3000   │                │
+│  │ :3301   │      │  :8088   │    │ (GUI)    │                │
 │  └────┬────┘      └─────┬────┘    └────┬─────┘                │
 │       │                 │              │                        │
 │       ▼                 ▼              ▼                        │
@@ -52,15 +52,16 @@ Sentinel helps you manage complex multi-domain workflows through intelligent AI 
 │  │         PostgreSQL State Store              │               │
 │  │  • Agents      • Decisions                  │               │
 │  │  • Bottlenecks • Weekly Plans               │               │
-│  │  • Notion Sync • Audit Logs                 │               │
-│  └──────────────────┬──────────────────────────┘               │
-│                     │                                           │
-│           ┌─────────┴──────────┐                               │
-│           ▼                    ▼                                │
-│    ┌────────────┐       ┌──────────┐                           │
-│    │OpenTelemetry│      │  Notion  │                           │
-│    │   Traces   │       │   API    │                           │
-│    └────────────┘       └──────────┘                           │
+│  │  • Audit Logs  • Security Findings          │               │
+│  └──────┬───────────────────────────────┬──────┘               │
+│         │                               │                      │
+│         ▼                               ▼                      │
+│  ┌──────────┐                    ┌─────────────┐               │
+│  │ FastAPI  │                    │OpenTelemetry│               │
+│  │ Sentinel │                    │   Traces    │               │
+│  │ Server   │                    └─────────────┘               │
+│  │  :8000   │                                                  │
+│  └──────────┘                                                  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -111,9 +112,9 @@ Sentinel helps you manage complex multi-domain workflows through intelligent AI 
 |-------|------------|---------|
 | **Language** | Python 3.10+ | Application development |
 | **API Framework** | FastAPI | Async web API |
+| **Frontend** | Next.js (React) | Sentinel Command Center (GUI) |
+| **UI Library** | Shadcn UI + Tailwind | Dashboard styling |
 | **Database** | PostgreSQL 15 | State persistence |
-| **ORM** | SQLAlchemy 2.0 | Database abstraction |
-| **AI** | Claude API (Anthropic) | Agent intelligence |
 | **Observability** | SigNoz + OpenTelemetry | Ops monitoring |
 | **Business Intelligence** | Apache Superset | Executive dashboards |
 | **Reverse Proxy** | Nginx | SSL termination, routing |
@@ -160,20 +161,22 @@ pre-commit install
 
 ### Running the System
 
-#### 1. Start Core Sentinel Application
+#### 1. Start Core Sentinel Application (Backend)
 
 ```bash
-# Run diagnostic cycle (read-only mode)
-python -m src.cli.cli run-cycle --mode diagnostic
-
-# Run with specific agent
-python -m src.cli.cli run-agent job-search
-
-# Run orchestrator to synthesize weekly plan
-python -m src.cli.cli orchestrate
+source venv/bin/activate
+uvicorn src.mcp_server.sentinel_server:app --reload --port 8000
 ```
 
-#### 2. Start Observability Stack (SigNoz)
+#### 2. Start Command Center (GUI)
+
+```bash
+cd web
+npm run dev
+# Access at http://localhost:3000
+```
+
+#### 3. Start Observability Stack (SigNoz)
 
 ```bash
 # Deploy SigNoz (ClickHouse, query service, frontend)

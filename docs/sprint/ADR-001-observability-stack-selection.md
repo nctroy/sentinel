@@ -35,12 +35,12 @@ Additionally, this deployment serves as a **portfolio demonstration piece** for 
    - Operational monitoring and observability
    - Logs, metrics, and distributed traces in unified platform
    - Real-time agent health dashboards
-   
+
 2. **Apache Superset** (Modern BI and data exploration platform)
    - Business intelligence and executive dashboards
    - SQL-based analytics connecting directly to PostgreSQL
    - Cross-domain business metrics and portfolio overview
-   
+
 3. **PostgreSQL** (Existing state store)
    - Single source of truth for all Sentinel state
    - Agents, bottlenecks, actions, orchestrator plans, decision logs
@@ -224,7 +224,7 @@ Grafana Stack:        Hybrid Approach:
 - Grafana             - SigNoz (all-in-one)
 - Prometheus          - Superset (SQL-based)
 - Loki                - PostgreSQL (already exists)
-- (Tempo for traces)  
+- (Tempo for traces)
 = 3-4 services        = 2 services
 ```
 

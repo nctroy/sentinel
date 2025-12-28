@@ -38,20 +38,19 @@ def setup_telemetry(service_name: str = "sentinel") -> trace.Tracer:
 
     try:
         # Configure resource with service name
-        resource = Resource(attributes={
-            SERVICE_NAME: service_name
-        })
+        resource = Resource(attributes={SERVICE_NAME: service_name})
 
         # Create tracer provider
         provider = TracerProvider(resource=resource)
 
         # Get OTLP endpoint from environment or use default
-        otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+        otlp_endpoint = os.getenv(
+            "OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"
+        )
 
         # Create OTLP exporter for SigNoz
         otlp_exporter = OTLPSpanExporter(
-            endpoint=otlp_endpoint,
-            insecure=True  # Use insecure for local development
+            endpoint=otlp_endpoint, insecure=True  # Use insecure for local development
         )
 
         # Add span processor with batch export
@@ -63,7 +62,9 @@ def setup_telemetry(service_name: str = "sentinel") -> trace.Tracer:
         # Create and cache tracer
         _tracer = trace.get_tracer(__name__)
 
-        logger.info(f"OpenTelemetry initialized: service={service_name}, endpoint={otlp_endpoint}")
+        logger.info(
+            f"OpenTelemetry initialized: service={service_name}, endpoint={otlp_endpoint}"
+        )
 
         return _tracer
 
@@ -101,6 +102,7 @@ def instrument_agent_method(method_name: str):
         async def diagnose(self) -> Dict[str, Any]:
             ...
     """
+
     def decorator(func):
         @wraps(func)
         async def wrapper(self, *args, **kwargs):
@@ -108,9 +110,9 @@ def instrument_agent_method(method_name: str):
 
             with tracer.start_as_current_span(method_name) as span:
                 # Add agent context attributes
-                span.set_attribute("agent.id", getattr(self, 'agent_id', 'unknown'))
-                span.set_attribute("agent.type", getattr(self, 'agent_type', 'unknown'))
-                span.set_attribute("agent.domain", getattr(self, 'domain', 'unknown'))
+                span.set_attribute("agent.id", getattr(self, "agent_id", "unknown"))
+                span.set_attribute("agent.type", getattr(self, "agent_type", "unknown"))
+                span.set_attribute("agent.domain", getattr(self, "domain", "unknown"))
 
                 try:
                     # Execute the wrapped method
@@ -118,12 +120,16 @@ def instrument_agent_method(method_name: str):
 
                     # Add result metadata to span
                     if isinstance(result, dict):
-                        if 'confidence' in result:
-                            span.set_attribute("result.confidence", result['confidence'])
-                        if 'impact_score' in result:
-                            span.set_attribute("result.impact_score", result['impact_score'])
-                        if 'status' in result:
-                            span.set_attribute("result.status", result['status'])
+                        if "confidence" in result:
+                            span.set_attribute(
+                                "result.confidence", result["confidence"]
+                            )
+                        if "impact_score" in result:
+                            span.set_attribute(
+                                "result.impact_score", result["impact_score"]
+                            )
+                        if "status" in result:
+                            span.set_attribute("result.status", result["status"])
 
                     span.set_attribute("success", True)
                     return result
@@ -137,6 +143,7 @@ def instrument_agent_method(method_name: str):
                     raise
 
         return wrapper
+
     return decorator
 
 
@@ -149,17 +156,20 @@ def instrument_claude_call(func):
         async def call_claude(self, system_prompt: str, user_message: str) -> str:
             ...
     """
+
     @wraps(func)
     async def wrapper(self, *args, **kwargs):
         tracer = get_tracer()
 
         with tracer.start_as_current_span("claude.api.call") as span:
             # Add agent context
-            span.set_attribute("agent.id", getattr(self, 'agent_id', 'unknown'))
+            span.set_attribute("agent.id", getattr(self, "agent_id", "unknown"))
 
             # Add prompt metadata
-            system_prompt = kwargs.get('system_prompt', args[0] if len(args) > 0 else '')
-            user_message = kwargs.get('user_message', args[1] if len(args) > 1 else '')
+            system_prompt = kwargs.get(
+                "system_prompt", args[0] if len(args) > 0 else ""
+            )
+            user_message = kwargs.get("user_message", args[1] if len(args) > 1 else "")
 
             span.set_attribute("prompt.system.length", len(system_prompt))
             span.set_attribute("prompt.user.length", len(user_message))
@@ -192,7 +202,9 @@ def add_span_attributes(attributes: Dict[str, Any]) -> None:
             current_span.set_attribute(key, value)
 
 
-def record_metric(name: str, value: float, attributes: Optional[Dict[str, Any]] = None) -> None:
+def record_metric(
+    name: str, value: float, attributes: Optional[Dict[str, Any]] = None
+) -> None:
     """
     Record a custom metric in the current span.
 
